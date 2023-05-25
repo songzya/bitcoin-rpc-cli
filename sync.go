@@ -9,6 +9,7 @@ import (
 	"github.com/olivere/elastic"
 	"github.com/shopspring/decimal"
 
+	btcjson1 "github.com/btcsuite/btcd/btcjson"
 	"github.com/songzya/bitcoin-rpc-cli/btcjson"
 )
 
@@ -379,39 +380,52 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 		sugar.Fatal("rollback block err: ", block.Hash, " fail to delete")
 	}
 
-	//for _, tx := range block.Tx {
-	//	// es 中 vout 的 used 字段为 nil 涉及到的 vins 地址余额不用回滚
-	//	voutWithIDSliceForVins, _ := esClient.QueryVoutsByUsedFieldAndBelongTxID(ctx, tx.Vin, tx.Txid)
-	//
-	//	// 如果 len(voutWithIDSliceForVins) 为 0 ，则表面已经回滚过了，
-	//	for _, voutWithID := range voutWithIDSliceForVins {
-	//		// rollback: update vout's used to nil
-	//		updateVoutUsedField := elastic.NewBulkUpdateRequest().Index("vout").Type("vout").Id(voutWithID.ID).
-	//			Doc(map[string]interface{}{"used": nil})
-	//		bulkRequest.Add(updateVoutUsedField).Refresh("true")
-	//
-	//		_, vinAddressesTmp, vinAddressWithAmountSliceTmp, vinAddressWithAmountAndTxidSliceTmp := parseESVout(voutWithID, tx.Txid)
-	//		vinAddresses = append(vinAddresses, vinAddressesTmp...)
-	//		vinAddressWithAmountSlice = append(vinAddressWithAmountSlice, vinAddressWithAmountSliceTmp...)
-	//		vinAddressWithAmountAndTxidSlice = append(vinAddressWithAmountAndTxidSlice, vinAddressWithAmountAndTxidSliceTmp...)
-	//	}
+	for _, tx := range block.Tx {
+		// es 中 vout 的 used 字段为 nil 涉及到的 vins 地址余额不用回滚
+		var Vin []btcjson1.Vin
+		var ttVin btcjson1.Vin
+		var ii = 0
+		for _, tVin := range tx.Vin {
+			ttVin.Coinbase = tVin.Coinbase
+			ttVin.Txid = tVin.Txid
+			ttVin.Vout = tVin.Vout
+			ttVin.ScriptSig = tVin.ScriptSig
+			ttVin.Sequence = tVin.Sequence
+			ttVin.Witness = tVin.Witness
+			Vin = append(Vin, ttVin)
+			ii++
+		}
+		voutWithIDSliceForVins, _ := esClient.QueryVoutsByUsedFieldAndBelongTxID(ctx, Vin, tx.Txid)
 
-	//	// get es vouts with id in elasticsearch by tx vouts
-	//	indexVouts := indexedVoutsFun(tx.Vout, tx.Txid)
-	//	// 没有被删除的 vouts 涉及到的 vout 地址才需要回滚余额
-	//	voutWithIDSliceForVouts := esClient.QueryVoutWithVinsOrVoutsUnlimitSize(ctx, indexVouts)
-	//
-	//	for _, voutWithID := range voutWithIDSliceForVouts {
-	//		// rollback: delete vout
-	//		deleteVout := elastic.NewBulkDeleteRequest().Index("vout").Type("vout").Id(voutWithID.ID)
-	//		bulkRequest.Add(deleteVout).Refresh("true")
-	//
-	//		_, voutAddressesTmp, voutAddressWithAmountSliceTmp, voutAddressWithAmountAndTxidSliceTmp := parseESVout(voutWithID, tx.Txid)
-	//		voutAddresses = append(voutAddresses, voutAddressesTmp...)
-	//		voutAddressWithAmountSlice = append(voutAddressWithAmountSlice, voutAddressWithAmountSliceTmp...)
-	//		voutAddressWithAmountAndTxidSlice = append(voutAddressWithAmountAndTxidSlice, voutAddressWithAmountAndTxidSliceTmp...)
-	//	}
-	//}
+		// 如果 len(voutWithIDSliceForVins) 为 0 ，则表面已经回滚过了，
+		for _, voutWithID := range voutWithIDSliceForVins {
+			// rollback: update vout's used to nil
+			updateVoutUsedField := elastic.NewBulkUpdateRequest().Index("vout").Type("vout").Id(voutWithID.ID).
+				Doc(map[string]interface{}{"used": nil})
+			bulkRequest.Add(updateVoutUsedField).Refresh("true")
+
+			_, vinAddressesTmp, vinAddressWithAmountSliceTmp, vinAddressWithAmountAndTxidSliceTmp := parseESVout(voutWithID, tx.Txid)
+			vinAddresses = append(vinAddresses, vinAddressesTmp...)
+			vinAddressWithAmountSlice = append(vinAddressWithAmountSlice, vinAddressWithAmountSliceTmp...)
+			vinAddressWithAmountAndTxidSlice = append(vinAddressWithAmountAndTxidSlice, vinAddressWithAmountAndTxidSliceTmp...)
+		}
+
+		// get es vouts with id in elasticsearch by tx vouts
+		indexVouts := indexedVoutsFun(tx.Vout, tx.Txid)
+		// 没有被删除的 vouts 涉及到的 vout 地址才需要回滚余额
+		voutWithIDSliceForVouts := esClient.QueryVoutWithVinsOrVoutsUnlimitSize(ctx, indexVouts)
+
+		for _, voutWithID := range voutWithIDSliceForVouts {
+			// rollback: delete vout
+			deleteVout := elastic.NewBulkDeleteRequest().Index("vout").Type("vout").Id(voutWithID.ID)
+			bulkRequest.Add(deleteVout).Refresh("true")
+
+			_, voutAddressesTmp, voutAddressWithAmountSliceTmp, voutAddressWithAmountAndTxidSliceTmp := parseESVout(voutWithID, tx.Txid)
+			voutAddresses = append(voutAddresses, voutAddressesTmp...)
+			voutAddressWithAmountSlice = append(voutAddressWithAmountSlice, voutAddressWithAmountSliceTmp...)
+			voutAddressWithAmountAndTxidSlice = append(voutAddressWithAmountAndTxidSlice, voutAddressWithAmountAndTxidSliceTmp...)
+		}
+	}
 
 	// 统计块中所有交易 vin 涉及到的地址及其对应的提现余额 (balance type)
 	UniqueVinAddressesWithSumWithdraw = calculateUniqueAddressWithSumForVinOrVout(vinAddresses, vinAddressWithAmountSlice)

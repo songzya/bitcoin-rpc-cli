@@ -11,6 +11,7 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 
+	btcjson1 "github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/wire"
 )
@@ -511,21 +512,21 @@ type GetNetTotalsResult struct {
 // ScriptSig models a signature script.  It is defined separately since it only
 // applies to non-coinbase.  Therefore the field in the Vin structure needs
 // to be a pointer.
-type ScriptSig struct {
-	Asm string `json:"asm"`
-	Hex string `json:"hex"`
-}
+//type ScriptSig struct {
+//	Asm string `json:"asm"`
+//	Hex string `json:"hex"`
+//}
 
 // Vin models parts of the tx data.  It is defined separately since
 // getrawtransaction, decoderawtransaction, and searchrawtransaction use the
 // same structure.
 type Vin struct {
-	Coinbase  string     `json:"coinbase"`
-	Txid      string     `json:"txid"`
-	Vout      uint32     `json:"vout"`
-	ScriptSig *ScriptSig `json:"scriptSig"`
-	Sequence  uint32     `json:"sequence"`
-	Witness   []string   `json:"txinwitness"`
+	Coinbase  string              `json:"coinbase"`
+	Txid      string              `json:"txid"`
+	Vout      uint32              `json:"vout"`
+	ScriptSig *btcjson1.ScriptSig `json:"scriptSig"`
+	Sequence  uint32              `json:"sequence"`
+	Witness   []string            `json:"txinwitness"`
 }
 
 // IsCoinBase returns a bool to show if a Vin is a Coinbase one or not.
@@ -556,11 +557,11 @@ func (v *Vin) MarshalJSON() ([]byte, error) {
 
 	if v.HasWitness() {
 		txStruct := struct {
-			Txid      string     `json:"txid"`
-			Vout      uint32     `json:"vout"`
-			ScriptSig *ScriptSig `json:"scriptSig"`
-			Witness   []string   `json:"txinwitness"`
-			Sequence  uint32     `json:"sequence"`
+			Txid      string              `json:"txid"`
+			Vout      uint32              `json:"vout"`
+			ScriptSig *btcjson1.ScriptSig `json:"scriptSig"`
+			Witness   []string            `json:"txinwitness"`
+			Sequence  uint32              `json:"sequence"`
 		}{
 			Txid:      v.Txid,
 			Vout:      v.Vout,
@@ -572,10 +573,10 @@ func (v *Vin) MarshalJSON() ([]byte, error) {
 	}
 
 	txStruct := struct {
-		Txid      string     `json:"txid"`
-		Vout      uint32     `json:"vout"`
-		ScriptSig *ScriptSig `json:"scriptSig"`
-		Sequence  uint32     `json:"sequence"`
+		Txid      string              `json:"txid"`
+		Vout      uint32              `json:"vout"`
+		ScriptSig *btcjson1.ScriptSig `json:"scriptSig"`
+		Sequence  uint32              `json:"sequence"`
 	}{
 		Txid:      v.Txid,
 		Vout:      v.Vout,
@@ -593,13 +594,13 @@ type PrevOut struct {
 
 // VinPrevOut is like Vin except it includes PrevOut.  It is used by searchrawtransaction
 type VinPrevOut struct {
-	Coinbase  string     `json:"coinbase"`
-	Txid      string     `json:"txid"`
-	Vout      uint32     `json:"vout"`
-	ScriptSig *ScriptSig `json:"scriptSig"`
-	Witness   []string   `json:"txinwitness"`
-	PrevOut   *PrevOut   `json:"prevOut"`
-	Sequence  uint32     `json:"sequence"`
+	Coinbase  string              `json:"coinbase"`
+	Txid      string              `json:"txid"`
+	Vout      uint32              `json:"vout"`
+	ScriptSig *btcjson1.ScriptSig `json:"scriptSig"`
+	Witness   []string            `json:"txinwitness"`
+	PrevOut   *PrevOut            `json:"prevOut"`
+	Sequence  uint32              `json:"sequence"`
 }
 
 // IsCoinBase returns a bool to show if a Vin is a Coinbase one or not.
@@ -628,12 +629,12 @@ func (v *VinPrevOut) MarshalJSON() ([]byte, error) {
 
 	if v.HasWitness() {
 		txStruct := struct {
-			Txid      string     `json:"txid"`
-			Vout      uint32     `json:"vout"`
-			ScriptSig *ScriptSig `json:"scriptSig"`
-			Witness   []string   `json:"txinwitness"`
-			PrevOut   *PrevOut   `json:"prevOut,omitempty"`
-			Sequence  uint32     `json:"sequence"`
+			Txid      string              `json:"txid"`
+			Vout      uint32              `json:"vout"`
+			ScriptSig *btcjson1.ScriptSig `json:"scriptSig"`
+			Witness   []string            `json:"txinwitness"`
+			PrevOut   *PrevOut            `json:"prevOut,omitempty"`
+			Sequence  uint32              `json:"sequence"`
 		}{
 			Txid:      v.Txid,
 			Vout:      v.Vout,
@@ -646,11 +647,11 @@ func (v *VinPrevOut) MarshalJSON() ([]byte, error) {
 	}
 
 	txStruct := struct {
-		Txid      string     `json:"txid"`
-		Vout      uint32     `json:"vout"`
-		ScriptSig *ScriptSig `json:"scriptSig"`
-		PrevOut   *PrevOut   `json:"prevOut,omitempty"`
-		Sequence  uint32     `json:"sequence"`
+		Txid      string              `json:"txid"`
+		Vout      uint32              `json:"vout"`
+		ScriptSig *btcjson1.ScriptSig `json:"scriptSig"`
+		PrevOut   *PrevOut            `json:"prevOut,omitempty"`
+		Sequence  uint32              `json:"sequence"`
 	}{
 		Txid:      v.Txid,
 		Vout:      v.Vout,
