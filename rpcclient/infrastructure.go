@@ -25,11 +25,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	//"github.com/btcsuite/btcd/btcjson"
-	"btcjson"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/go-socks/socks"
 	"github.com/btcsuite/websocket"
+	"github.com/songzya/bitcoin-rpc-cli/btcjson"
 )
 
 var (
@@ -964,7 +963,7 @@ func (c *Client) sendRequest(jReq *jsonRequest) {
 	// the client running in HTTP POST mode or not.  When running in HTTP
 	// POST mode, the command is issued via an HTTP client.  Otherwise,
 	// the command is issued via the asynchronous websocket channels.
-	fmt.Println("sendrequest c.batch:",c.batch)
+	fmt.Println("sendrequest c.batch:", c.batch)
 	if c.config.HTTPPostMode {
 		if c.batch {
 			if err := c.addRequest(jReq); err != nil {
@@ -1028,11 +1027,11 @@ func (c *Client) SendCmd(cmd interface{}) chan *Response {
 		marshalledJSON: marshalledJSON,
 		responseChan:   responseChan,
 	}
-	fmt.Println("sendcmd id:",jReq.id)
-	fmt.Println("sendcmd method:",jReq.method)
-	fmt.Println("sendcmd cmd:",jReq.cmd)
-	fmt.Println("sendcmd marshalledJSON:",jReq.marshalledJSON)
-	fmt.Println("sendcmd responseChan:",jReq.responseChan)
+	fmt.Println("sendcmd id:", jReq.id)
+	fmt.Println("sendcmd method:", jReq.method)
+	fmt.Println("sendcmd cmd:", jReq.cmd)
+	fmt.Println("sendcmd marshalledJSON:", jReq.marshalledJSON)
+	fmt.Println("sendcmd responseChan:", jReq.responseChan)
 	c.sendRequest(jReq)
 
 	return responseChan

@@ -10,9 +10,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"btcjson"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/songzya/bitcoin-rpc-cli/btcjson"
 )
 
 // FutureGetBestBlockHashResult is a future promise to deliver the result of a
@@ -82,9 +82,9 @@ func (c *Client) waitForGetBlockRes(respChan chan *Response, hash string,
 	verbose, verboseTx bool) ([]byte, error) {
 
 	res, err := ReceiveFuture(respChan)
-	
+
 	if err != nil {
-		fmt.Println("==waitForGetBlockRes==",err.Error())
+		fmt.Println("==waitForGetBlockRes==", err.Error())
 	}
 	// If we receive an invalid parameter error, then we may be
 	// communicating with a btcd node which only understands the legacy
@@ -178,25 +178,24 @@ type FutureGetBlockVerboseResult struct {
 // getblock returns an object whose tx field is an array of raw transactions.
 // Use GetBlockVerboseTxResult to unmarshal data received from passing verbose=2 to getblock.
 type GetBlockVerboseResult struct {
-	Hash          string        `json:"hash"`
-	Confirmations int64         `json:"confirmations"`
-	StrippedSize  int32         `json:"strippedsize"`
-	Size          int32         `json:"size"`
-	Weight        int32         `json:"weight"`
-	Height        int64         `json:"height"`
-	Version       int32         `json:"version"`
-	VersionHex    string        `json:"versionHex"`
-	MerkleRoot    string        `json:"merkleroot"`
-	Tx            []string      `json:"tx,omitempty"`
+	Hash          string   `json:"hash"`
+	Confirmations int64    `json:"confirmations"`
+	StrippedSize  int32    `json:"strippedsize"`
+	Size          int32    `json:"size"`
+	Weight        int32    `json:"weight"`
+	Height        int64    `json:"height"`
+	Version       int32    `json:"version"`
+	VersionHex    string   `json:"versionHex"`
+	MerkleRoot    string   `json:"merkleroot"`
+	Tx            []string `json:"tx,omitempty"`
 	//RawTx         []TxRawResult `json:"rawtx,omitempty"` // Note: this field is always empty when verbose != 2.
-	Time          int64         `json:"time"`
-	Nonce         uint32        `json:"nonce"`
-	Bits          string        `json:"bits"`
-	Difficulty    float64       `json:"difficulty"`
-	PreviousHash  string        `json:"previousblockhash"`
-	NextHash      string        `json:"nextblockhash,omitempty"`
+	Time         int64   `json:"time"`
+	Nonce        uint32  `json:"nonce"`
+	Bits         string  `json:"bits"`
+	Difficulty   float64 `json:"difficulty"`
+	PreviousHash string  `json:"previousblockhash"`
+	NextHash     string  `json:"nextblockhash,omitempty"`
 }
-
 
 // Receive waits for the Response promised by the future and returns the data
 // structure from the server with information about the requested block.
@@ -213,7 +212,7 @@ func (r FutureGetBlockVerboseResult) Receive1() ([]byte, error) {
 	// 	return nil, err
 	// }
 	// return &blockResult, nil
-	return res,nil
+	return res, nil
 }
 
 // Receive waits for the Response promised by the future and returns the data
@@ -233,8 +232,6 @@ func (r FutureGetBlockVerboseResult) Receive() (*btcjson.GetBlockVerboseResult, 
 	return &blockResult, nil
 }
 
-
-
 // GetBlockVerboseAsync returns an instance of a type that can be used to get
 // the result of the RPC at some future time by invoking the Receive function on
 // the returned instance.
@@ -249,7 +246,7 @@ func (c *Client) GetBlockVerboseAsync(blockHash *chainhash.Hash) FutureGetBlockV
 	// "If verbosity is 1, returns an Object with information about block ."
 	cmd := btcjson.NewGetBlockCmd(hash, btcjson.Bool(true))
 
-	fmt.Println("cmd =  ",cmd)
+	fmt.Println("cmd =  ", cmd)
 
 	return FutureGetBlockVerboseResult{
 		client:   c,
@@ -266,7 +263,7 @@ func (c *Client) GetBlockVerboseAsync(blockHash *chainhash.Hash) FutureGetBlockV
 func (c *Client) GetBlockVerbose2(blockHash *chainhash.Hash) ([]byte, error) {
 	fmt.Println("==GetBlockVerbose==")
 	//return c.GetBlockVerboseAsync(blockHash).Receive()
-	return nil,nil
+	return nil, nil
 }
 
 func (c *Client) GetBlockVerbose(blockHash *chainhash.Hash) (*btcjson.GetBlockVerboseResult, error) {

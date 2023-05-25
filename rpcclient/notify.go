@@ -14,10 +14,10 @@ import (
 	"time"
 
 	//"github.com/btcsuite/btcd/btcjson"
-	"btcjson"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcd/btcutil"
+	"github.com/songzya/bitcoin-rpc-cli/btcjson"
 )
 
 var (

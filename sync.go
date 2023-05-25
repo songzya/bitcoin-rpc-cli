@@ -8,8 +8,8 @@ import (
 
 	"github.com/olivere/elastic"
 	"github.com/shopspring/decimal"
-	
-	"btcjson"
+
+	"github.com/songzya/bitcoin-rpc-cli/btcjson"
 )
 
 // ROLLBACKHEIGHT 回滚个数
@@ -21,7 +21,7 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 	if err != nil {
 		sugar.Fatal("Get info error: ", err.Error())
 	}
-	sugar.Warn("info",info)
+	sugar.Warn("info", info)
 	var DBCurrentHeight float64
 	agg, err := esClient.MaxAgg("height", "block", "block")
 	if err != nil {
@@ -32,10 +32,9 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 		sugar.Warn(strings.Join([]string{"Query max aggration error:", err.Error()}, " "))
 		//return false
 		DBCurrentHeight = 0
-	}else{
+	} else {
 		DBCurrentHeight = *agg
 	}
-	
 
 	heightGap := info.Headers - int32(DBCurrentHeight)
 	switch {
@@ -67,14 +66,13 @@ func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcC
 	if rollbackIndex <= 0 {
 		beginSynsIndex = 0
 	}
-	
+
 	SyncBeginRecordIndex := strconv.FormatInt(int64(beginSynsIndex), 10)
-	if(beginSynsIndex != 0){
+	if beginSynsIndex != 0 {
 		SyncBeginRecord, err := esClient.Get().Index("block").Type("block").Id(SyncBeginRecordIndex).Do(context.Background())
 		if err != nil {
 			sugar.Fatal("Query SyncBeginRecord error")
 		}
-	
 
 		info, err := btcClient.GetBlockChainInfo()
 		if err != nil {
@@ -87,7 +85,7 @@ func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcC
 			// 数据库倒退 5 个块再同步
 			btcClient.dumpToES(beginSynsIndex, info.Headers, size, esClient)
 		}
-	}else{
+	} else {
 		info, err := btcClient.GetBlockChainInfo()
 		if err != nil {
 			sugar.Fatal("Get info error: ", err.Error())
@@ -102,25 +100,25 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		hash, err1 := btcClient.GetBlockHash(int64(2))
 		if err1 != nil {
 			sugar.Fatal("Get block hash error: ", err1.Error())
-		}else{
+		} else {
 			sugar.Info("Get block hash : ", hash)
 		}
 		info, err2 := btcClient.GetBlockChainInfo()
 		if err2 != nil {
 			sugar.Fatal("Get block error: ", err2.Error())
-		}else{
+		} else {
 			sugar.Info("Get block info: ", info)
 		}
 		cnt, err3 := btcClient.GetBlockCount()
 		if err3 != nil {
 			sugar.Fatal("Get block count error: ", err3.Error())
-		}else{
+		} else {
 			sugar.Info("Get block count: ", cnt)
 		}
 		block, err := btcClient.getBlock1(2)
 		if err != nil {
 			sugar.Fatal("Get block error: ", err.Error())
-		}else{
+		} else {
 			sugar.Fatal("Get block info: ", block)
 		}
 		// 这个地址交易数据比较明显，
@@ -128,7 +126,7 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		// elasticClient.RollBackAndSyncTx(from, height, size, block)
 		// elasticClient.RollBackAndSyncBlock(from, height, size, block)
 		//sugar.Info("Dump block ", block.Height, " ", block.Hash, " dumpBlockTimeElapsed ", time.Since(dumpBlockTime))
-		sugar.Info( " dumpBlockTimeElapsed ", time.Since(dumpBlockTime))
+		sugar.Info(" dumpBlockTimeElapsed ", time.Since(dumpBlockTime))
 	}
 }
 
@@ -381,39 +379,39 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 		sugar.Fatal("rollback block err: ", block.Hash, " fail to delete")
 	}
 
-	for _, tx := range block.Tx {
-		// es 中 vout 的 used 字段为 nil 涉及到的 vins 地址余额不用回滚
-		voutWithIDSliceForVins, _ := esClient.QueryVoutsByUsedFieldAndBelongTxID(ctx, tx.Vin, tx.Txid)
+	//for _, tx := range block.Tx {
+	//	// es 中 vout 的 used 字段为 nil 涉及到的 vins 地址余额不用回滚
+	//	voutWithIDSliceForVins, _ := esClient.QueryVoutsByUsedFieldAndBelongTxID(ctx, tx.Vin, tx.Txid)
+	//
+	//	// 如果 len(voutWithIDSliceForVins) 为 0 ，则表面已经回滚过了，
+	//	for _, voutWithID := range voutWithIDSliceForVins {
+	//		// rollback: update vout's used to nil
+	//		updateVoutUsedField := elastic.NewBulkUpdateRequest().Index("vout").Type("vout").Id(voutWithID.ID).
+	//			Doc(map[string]interface{}{"used": nil})
+	//		bulkRequest.Add(updateVoutUsedField).Refresh("true")
+	//
+	//		_, vinAddressesTmp, vinAddressWithAmountSliceTmp, vinAddressWithAmountAndTxidSliceTmp := parseESVout(voutWithID, tx.Txid)
+	//		vinAddresses = append(vinAddresses, vinAddressesTmp...)
+	//		vinAddressWithAmountSlice = append(vinAddressWithAmountSlice, vinAddressWithAmountSliceTmp...)
+	//		vinAddressWithAmountAndTxidSlice = append(vinAddressWithAmountAndTxidSlice, vinAddressWithAmountAndTxidSliceTmp...)
+	//	}
 
-		// 如果 len(voutWithIDSliceForVins) 为 0 ，则表面已经回滚过了，
-		for _, voutWithID := range voutWithIDSliceForVins {
-			// rollback: update vout's used to nil
-			updateVoutUsedField := elastic.NewBulkUpdateRequest().Index("vout").Type("vout").Id(voutWithID.ID).
-				Doc(map[string]interface{}{"used": nil})
-			bulkRequest.Add(updateVoutUsedField).Refresh("true")
-
-			_, vinAddressesTmp, vinAddressWithAmountSliceTmp, vinAddressWithAmountAndTxidSliceTmp := parseESVout(voutWithID, tx.Txid)
-			vinAddresses = append(vinAddresses, vinAddressesTmp...)
-			vinAddressWithAmountSlice = append(vinAddressWithAmountSlice, vinAddressWithAmountSliceTmp...)
-			vinAddressWithAmountAndTxidSlice = append(vinAddressWithAmountAndTxidSlice, vinAddressWithAmountAndTxidSliceTmp...)
-		}
-
-		// get es vouts with id in elasticsearch by tx vouts
-		indexVouts := indexedVoutsFun(tx.Vout, tx.Txid)
-		// 没有被删除的 vouts 涉及到的 vout 地址才需要回滚余额
-		voutWithIDSliceForVouts := esClient.QueryVoutWithVinsOrVoutsUnlimitSize(ctx, indexVouts)
-
-		for _, voutWithID := range voutWithIDSliceForVouts {
-			// rollback: delete vout
-			deleteVout := elastic.NewBulkDeleteRequest().Index("vout").Type("vout").Id(voutWithID.ID)
-			bulkRequest.Add(deleteVout).Refresh("true")
-
-			_, voutAddressesTmp, voutAddressWithAmountSliceTmp, voutAddressWithAmountAndTxidSliceTmp := parseESVout(voutWithID, tx.Txid)
-			voutAddresses = append(voutAddresses, voutAddressesTmp...)
-			voutAddressWithAmountSlice = append(voutAddressWithAmountSlice, voutAddressWithAmountSliceTmp...)
-			voutAddressWithAmountAndTxidSlice = append(voutAddressWithAmountAndTxidSlice, voutAddressWithAmountAndTxidSliceTmp...)
-		}
-	}
+	//	// get es vouts with id in elasticsearch by tx vouts
+	//	indexVouts := indexedVoutsFun(tx.Vout, tx.Txid)
+	//	// 没有被删除的 vouts 涉及到的 vout 地址才需要回滚余额
+	//	voutWithIDSliceForVouts := esClient.QueryVoutWithVinsOrVoutsUnlimitSize(ctx, indexVouts)
+	//
+	//	for _, voutWithID := range voutWithIDSliceForVouts {
+	//		// rollback: delete vout
+	//		deleteVout := elastic.NewBulkDeleteRequest().Index("vout").Type("vout").Id(voutWithID.ID)
+	//		bulkRequest.Add(deleteVout).Refresh("true")
+	//
+	//		_, voutAddressesTmp, voutAddressWithAmountSliceTmp, voutAddressWithAmountAndTxidSliceTmp := parseESVout(voutWithID, tx.Txid)
+	//		voutAddresses = append(voutAddresses, voutAddressesTmp...)
+	//		voutAddressWithAmountSlice = append(voutAddressWithAmountSlice, voutAddressWithAmountSliceTmp...)
+	//		voutAddressWithAmountAndTxidSlice = append(voutAddressWithAmountAndTxidSlice, voutAddressWithAmountAndTxidSliceTmp...)
+	//	}
+	//}
 
 	// 统计块中所有交易 vin 涉及到的地址及其对应的提现余额 (balance type)
 	UniqueVinAddressesWithSumWithdraw = calculateUniqueAddressWithSumForVinOrVout(vinAddresses, vinAddressWithAmountSlice)

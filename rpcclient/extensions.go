@@ -13,10 +13,10 @@ import (
 	"fmt"
 
 	//"github.com/btcsuite/btcd/btcjson"
-	"btcjson"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcd/btcutil"
+	"github.com/songzya/bitcoin-rpc-cli/btcjson"
 )
 
 // FutureDebugLevelResult is a future promise to deliver the result of a
@@ -57,7 +57,8 @@ func (c *Client) DebugLevelAsync(levelSpec string) FutureDebugLevelResult {
 // specification.
 //
 // The levelspec can be either a debug level or of the form:
-// 	<subsystem>=<level>,<subsystem2>=<level2>,...
+//
+//	<subsystem>=<level>,<subsystem2>=<level2>,...
 //
 // Additionally, the special keyword 'show' can be used to get a list of the
 // available subsystems.

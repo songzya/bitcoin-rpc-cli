@@ -3,12 +3,11 @@ package main
 import (
 	"context"
 	"errors"
-	"strings"
-	"github.com/btcsuite/btcd/btcjson"
-	//"github.com/btcsuite/btcd/rpcclient"
-	"rpcclient"
-	btcjson1 "btcjson"
 	"github.com/shopspring/decimal"
+	"github.com/songzya/bitcoin-rpc-cli/btcjson"
+	btcjson1 "github.com/songzya/bitcoin-rpc-cli/btcjson"
+	"github.com/songzya/bitcoin-rpc-cli/rpcclient"
+	"strings"
 	//"github.com/btcsuite/btcd/wire"
 )
 
@@ -21,7 +20,7 @@ func (conf *configure) bitcoinClient() *rpcclient.Client {
 		Host:         strings.Join([]string{conf.BitcoinHost, conf.BitcoinPort}, ":"),
 		User:         conf.BitcoinUser,
 		Pass:         conf.BitcoinPass,
-		CookiePath :	"/root/.dogecoin/.cookie",
+		CookiePath:   "/root/.dogecoin/.cookie",
 		HTTPPostMode: conf.BitcoinhttpMode,
 		DisableTLS:   conf.BitcoinDisableTLS,
 	}
@@ -62,8 +61,6 @@ func (btcClient *bitcoinClientAlias) getBlock(height int32) (*btcjson1.GetBlockV
 	return block, nil
 }
 
-
-
 func (btcClient *bitcoinClientAlias) getBlock1(height int32) (*btcjson1.GetBlockVerboseResult, error) {
 	blockHash, err := btcClient.GetBlockHash(int64(height))
 	if err != nil {
@@ -77,7 +74,6 @@ func (btcClient *bitcoinClientAlias) getBlock1(height int32) (*btcjson1.GetBlock
 	}
 	return block, nil
 }
-
 
 // Balance type struct
 type Balance struct {
@@ -286,7 +282,7 @@ func newBalanceJournalFun(address, ope, txid string, amount float64) BalanceJour
 	return balancejournal
 }
 
-//  elasticsearch 中 txstream Type 数据
+// elasticsearch 中 txstream Type 数据
 func esTxFun(tx btcjson.TxRawResult, blockHash string, simpleVins, simpleVouts []AddressWithValueInTx, vinAmount, voutAmount decimal.Decimal) *esTx {
 	// caculate tx fee
 	fee := vinAmount.Sub(voutAmount)

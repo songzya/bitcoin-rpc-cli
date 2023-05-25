@@ -10,9 +10,9 @@ import (
 	"errors"
 
 	//"github.com/btcsuite/btcd/btcjson"
-	"btcjson"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/songzya/bitcoin-rpc-cli/btcjson"
 )
 
 // FutureGenerateResult is a future promise to deliver the result of a
