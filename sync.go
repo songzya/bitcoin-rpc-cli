@@ -9,7 +9,7 @@ import (
 	"github.com/olivere/elastic"
 	"github.com/shopspring/decimal"
 	
-	"github.com/btcsuite/btcd/btcjson"
+	"btcjson"
 )
 
 // ROLLBACKHEIGHT 回滚个数

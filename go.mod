@@ -1,10 +1,15 @@
-module github.com/wenweih/bitcoin-ledger-2es
+module github.com/songzya/bitcoin-rpc-cli
 
 go 1.18
 
 require (
-	github.com/Assetsadapter/dogecoin-adapter v1.0.5
 	github.com/btcsuite/btcd v0.23.4
+	github.com/btcsuite/btcd/btcutil v1.1.3
+	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2
+	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f
+	github.com/btcsuite/go-socks v0.0.0-20170105172521-4720035b7bfd
+	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792
+	github.com/davecgh/go-spew v1.1.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/olivere/elastic v6.2.37+incompatible
 	github.com/shopspring/decimal v1.3.1
@@ -16,12 +21,6 @@ require (
 
 require (
 	github.com/btcsuite/btcd/btcec/v2 v2.1.3 // indirect
-	github.com/btcsuite/btcd/btcutil v1.1.0 // indirect
-	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1 // indirect
-	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f // indirect
-	github.com/btcsuite/go-socks v0.0.0-20170105172521-4720035b7bfd // indirect
-	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/decred/dcrd/crypto/blake256 v1.0.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
 	github.com/fortytw2/leaktest v1.3.0 // indirect
