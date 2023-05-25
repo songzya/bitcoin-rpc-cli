@@ -99,7 +99,7 @@ func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcC
 func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elasticClient *elasticClientAlias) {
 	for height := from; height < end; height++ {
 		dumpBlockTime := time.Now()
-		hash, err1 := btcClient.GetBlockHash(int64(height))
+		hash, err1 := btcClient.GetBlockHash(int64(2))
 		if err1 != nil {
 			sugar.Fatal("Get block hash error: ", err1.Error())
 		}else{
@@ -111,13 +111,13 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		}else{
 			sugar.Info("Get block info: ", info)
 		}
-		tx, err3 := btcClient.GetBlockVerboseTx(hash)
+		cnt, err3 := btcClient.GetBlockCount()
 		if err3 != nil {
-			sugar.Fatal("Get block tx error: ", err3.Error())
+			sugar.Fatal("Get block count error: ", err3.Error())
 		}else{
-			sugar.Info("Get block tx: ", tx)
+			sugar.Info("Get block count: ", cnt)
 		}
-		block,err := btcClient.getBlock(height)
+		block, err := btcClient.getBlock1(2)
 		if err != nil {
 			sugar.Fatal("Get block error: ", err.Error())
 		}else{
@@ -125,9 +125,10 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		}
 		// 这个地址交易数据比较明显，
 		// 结合 https://blockchain.info/address/12cbQLTFMXRnSzktFkuoG3eHoMeFtpTu3S 的交易数据测试验证同步逻辑 (该地址上 2009 年的交易数据)
-		elasticClient.RollBackAndSyncTx(from, height, size, block)
-		elasticClient.RollBackAndSyncBlock(from, height, size, block)
-		sugar.Info("Dump block ", block.Height, " ", block.Hash, " dumpBlockTimeElapsed ", time.Since(dumpBlockTime))
+		// elasticClient.RollBackAndSyncTx(from, height, size, block)
+		// elasticClient.RollBackAndSyncBlock(from, height, size, block)
+		//sugar.Info("Dump block ", block.Height, " ", block.Hash, " dumpBlockTimeElapsed ", time.Since(dumpBlockTime))
+		sugar.Info( " dumpBlockTimeElapsed ", time.Since(dumpBlockTime))
 	}
 }
 

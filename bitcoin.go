@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"strings"
-
 	"github.com/btcsuite/btcd/btcjson"
-	"github.com/btcsuite/btcd/rpcclient"
+	//"github.com/btcsuite/btcd/rpcclient"
+	"rpcclient"
+	btcjson1 "btcjson"
 	"github.com/shopspring/decimal"
+	//"github.com/btcsuite/btcd/wire"
 )
 
 type bitcoinClientAlias struct {
@@ -47,7 +49,7 @@ func (btcClient *bitcoinClientAlias) ReSetSync(hightest int32, elasticClient *el
 	btcClient.dumpToES(int32(1), hightest, int(ROLLBACKHEIGHT), elasticClient)
 }
 
-func (btcClient *bitcoinClientAlias) getBlock(height int32) (*btcjson.GetBlockVerboseTxResult, error) {
+func (btcClient *bitcoinClientAlias) getBlock(height int32) (*btcjson1.GetBlockVerboseTxResult, error) {
 	blockHash, err := btcClient.GetBlockHash(int64(height))
 	if err != nil {
 		return nil, err
@@ -59,6 +61,23 @@ func (btcClient *bitcoinClientAlias) getBlock(height int32) (*btcjson.GetBlockVe
 	}
 	return block, nil
 }
+
+
+
+func (btcClient *bitcoinClientAlias) getBlock1(height int32) (*btcjson1.GetBlockVerboseResult, error) {
+	blockHash, err := btcClient.GetBlockHash(int64(height))
+	if err != nil {
+		return nil, err
+	}
+
+	//block, err := btcClient.GetBlockVerboseTx(blockHash)
+	block, err := btcClient.GetBlockVerbose(blockHash)
+	if err != nil {
+		return nil, err
+	}
+	return block, nil
+}
+
 
 // Balance type struct
 type Balance struct {
