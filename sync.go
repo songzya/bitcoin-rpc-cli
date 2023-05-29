@@ -128,7 +128,7 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		// elasticClient.RollBackAndSyncTx(from, height, size, block)
 		// elasticClient.RollBackAndSyncBlock(from, height, size, block)
 		//sugar.Info("Dump block ", block.Height, " ", block.Hash, " dumpBlockTimeElapsed ", time.Since(dumpBlockTime))
-		sugar.Info(" dumpBlockTimeElapsed ", time.Since(dumpBlockTime))
+		sugar.Fatal(" dumpBlockTimeElapsed ", time.Since(dumpBlockTime))
 	}
 }
 
