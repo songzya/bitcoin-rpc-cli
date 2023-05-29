@@ -99,35 +99,41 @@ func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcC
 func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elasticClient *elasticClientAlias) {
 	for height := from; height < end; height++ {
 		dumpBlockTime := time.Now()
-		hash, err1 := btcClient.GetBlockHash(int64(2))
-		if err1 != nil {
-			sugar.Fatal("Get block hash error: ", err1.Error())
-		} else {
-			sugar.Info("Get block hash : ", hash)
-		}
-		info, err2 := btcClient.GetBlockChainInfo()
-		if err2 != nil {
-			sugar.Fatal("Get block error: ", err2.Error())
-		} else {
-			sugar.Info("Get block info: ", info)
-		}
-		cnt, err3 := btcClient.GetBlockCount()
-		if err3 != nil {
-			sugar.Fatal("Get block count error: ", err3.Error())
-		} else {
-			sugar.Info("Get block count: ", cnt)
-		}
-		tx, err := btcClient.getBlock(20000)
+		//hash, err1 := btcClient.GetBlockHash(int64(2))
+		//if err1 != nil {
+		//	sugar.Fatal("Get block hash error: ", err1.Error())
+		//} else {
+		//	sugar.Info("Get block hash : ", hash)
+		//}
+		//info, err2 := btcClient.GetBlockChainInfo()
+		//if err2 != nil {
+		//	sugar.Fatal("Get block error: ", err2.Error())
+		//} else {
+		//	sugar.Info("Get block info: ", info)
+		//}
+		//cnt, err3 := btcClient.GetBlockCount()
+		//if err3 != nil {
+		//	sugar.Fatal("Get block count error: ", err3.Error())
+		//} else {
+		//	sugar.Info("Get block count: ", cnt)
+		//}
+		//tx, err := btcClient.getBlock1(20000)
+		//if err != nil {
+		//	sugar.Fatal("Get block error: ", err.Error())
+		//} else {
+		//	sugar.Info("Get tx info: ", tx)
+		//}
+		block, err := btcClient.getBlock2(height)
 		if err != nil {
 			sugar.Fatal("Get block error: ", err.Error())
 		} else {
-			sugar.Info("Get tx info: ", tx)
+			sugar.Info("Get tx info: ", block)
 		}
 		// 这个地址交易数据比较明显，
 		// 结合 https://blockchain.info/address/12cbQLTFMXRnSzktFkuoG3eHoMeFtpTu3S 的交易数据测试验证同步逻辑 (该地址上 2009 年的交易数据)
-		// elasticClient.RollBackAndSyncTx(from, height, size, block)
-		// elasticClient.RollBackAndSyncBlock(from, height, size, block)
-		//sugar.Info("Dump block ", block.Height, " ", block.Hash, " dumpBlockTimeElapsed ", time.Since(dumpBlockTime))
+		elasticClient.RollBackAndSyncTx(from, height, size, block)
+		elasticClient.RollBackAndSyncBlock(from, height, size, block)
+		sugar.Info("Dump block ", block.Height, " ", block.Hash, " dumpBlockTimeElapsed ", time.Since(dumpBlockTime))
 		sugar.Fatal(" dumpBlockTimeElapsed ", time.Since(dumpBlockTime))
 	}
 }
