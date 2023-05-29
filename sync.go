@@ -344,7 +344,7 @@ func (esClient *elasticClientAlias) syncVinsBalance(ctx context.Context, vinAddr
 	}
 }
 
-func (esClient *elasticClientAlias) syncVout(vout btcjson.Vout, tx btcjson.TxRawResult, bulkRequest *elastic.BulkService) bool {
+func (esClient *elasticClientAlias) syncVout(vout btcjson1.Vout, tx btcjson1.TxRawResult, bulkRequest *elastic.BulkService) bool {
 	//  bulk insert vouts
 	newVout, err := newVoutFun(vout, tx.Vin, tx.Txid)
 	if err != nil {
