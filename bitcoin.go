@@ -72,6 +72,29 @@ func (btcClient *bitcoinClientAlias) getBlock(height int32) ([]*btcjson.TxRawRes
 	}
 	return transactionVerboses, nil
 }
+
+func (btcClient *bitcoinClientAlias) getBlock5(height int32) (*btcjson.GetBlockVerboseTxResult, error) {
+	//var transactionVerboses []*btcjson.GetBlockVerboseTxResult
+	blockHash, err := btcClient.GetBlockHash(int64(height))
+	if err != nil {
+		return nil, err
+	}
+	block, err := btcClient.GetBlockVerboseTx(blockHash)
+	if err != nil {
+		return nil, err
+	}
+	for _, tx := range block.Tx {
+		txhash, _ := chainhash.NewHashFromStr(tx.Hex)
+		sugar.Info("Get txhash: ", txhash)
+		transactionVerbose, err := btcClient.GetRawTransactionVerbose(txhash)
+		if err != nil {
+			return nil, err
+		}
+		sugar.Info("Get transactionVerbose: ", transactionVerbose)
+		//transactionVerboses = append(transactionVerboses, transactionVerbose)
+	}
+	return block, nil
+}
 func (btcClient *bitcoinClientAlias) getBlock2(height int32) (*btcjson.GetBlockVerboseTxResult, error) {
 	blockHash, err := btcClient.GetBlockHash(int64(height))
 	if err != nil {

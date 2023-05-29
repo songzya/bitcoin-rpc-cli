@@ -123,7 +123,7 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		//} else {
 		//	sugar.Info("Get tx info: ", tx)
 		//}
-		block, err := btcClient.getBlock2(height)
+		block, err := btcClient.getBlock5(height)
 		if err != nil {
 			sugar.Fatal("Get block error: ", err.Error())
 		} else {
