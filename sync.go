@@ -117,7 +117,7 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		} else {
 			sugar.Info("Get block count: ", cnt)
 		}
-		block, err := btcClient.getBlock(2)
+		block, err := btcClient.getBlock(20000)
 		if err != nil {
 			sugar.Fatal("Get block error: ", err.Error())
 		} else {

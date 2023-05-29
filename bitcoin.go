@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	btcjson1 "github.com/btcsuite/btcd/btcjson"
-	"github.com/btcsuite/btcd/btcutil"
+	//"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/shopspring/decimal"
 	"github.com/songzya/bitcoin-rpc-cli/btcjson"
@@ -50,8 +50,8 @@ func (btcClient *bitcoinClientAlias) ReSetSync(hightest int32, elasticClient *el
 	btcClient.dumpToES(int32(1), hightest, int(ROLLBACKHEIGHT), elasticClient)
 }
 
-func (btcClient *bitcoinClientAlias) getBlock(height int32) ([]*btcutil.Tx, error) {
-	var transactionVerboses []*btcutil.Tx
+func (btcClient *bitcoinClientAlias) getBlock(height int32) ([]*btcjson.TxRawResult, error) {
+	var transactionVerboses []*btcjson.TxRawResult
 	blockHash, err := btcClient.GetBlockHash(int64(height))
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (btcClient *bitcoinClientAlias) getBlock(height int32) ([]*btcutil.Tx, erro
 	for _, tx := range block.Tx {
 		txhash, _ := chainhash.NewHashFromStr(tx)
 		sugar.Info("Get txhash: ", txhash)
-		transactionVerbose, err := btcClient.GetRawTransaction(txhash)
+		transactionVerbose, err := btcClient.GetRawTransactionVerbose(txhash)
 		if err != nil {
 			return nil, err
 		}
