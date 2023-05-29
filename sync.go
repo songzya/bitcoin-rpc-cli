@@ -10,7 +10,8 @@ import (
 	"github.com/shopspring/decimal"
 
 	btcjson1 "github.com/btcsuite/btcd/btcjson"
-	"github.com/songzya/bitcoin-rpc-cli/btcjson"
+	//"github.com/songzya/bitcoin-rpc-cli/btcjson"
+	"github.com/dogecoinw/doged/btcjson"
 )
 
 // ROLLBACKHEIGHT 回滚个数
@@ -116,7 +117,7 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		} else {
 			sugar.Info("Get block count: ", cnt)
 		}
-		block, err := btcClient.getBlock1(2)
+		block, err := btcClient.getBlock(2)
 		if err != nil {
 			sugar.Fatal("Get block error: ", err.Error())
 		} else {
