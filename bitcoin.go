@@ -50,8 +50,8 @@ func (btcClient *bitcoinClientAlias) ReSetSync(hightest int32, elasticClient *el
 	btcClient.dumpToES(int32(1), hightest, int(ROLLBACKHEIGHT), elasticClient)
 }
 
-func (btcClient *bitcoinClientAlias) getBlock(height int32) ([]*btcjson.TxRawResult, error) {
-	var transactionVerboses []*btcjson.TxRawResult
+func (btcClient *bitcoinClientAlias) getBlock(height int32) (*btcjson.GetBlockVerboseTxResult, error) {
+	var block1 btcjson.GetBlockVerboseTxResult
 	blockHash, err := btcClient.GetBlockHash(int64(height))
 	if err != nil {
 		return nil, err
@@ -60,6 +60,21 @@ func (btcClient *bitcoinClientAlias) getBlock(height int32) ([]*btcjson.TxRawRes
 	if err != nil {
 		return nil, err
 	}
+	block1.Hash = block.Hash
+	block1.Confirmations = block.Confirmations
+	block1.StrippedSize = block.StrippedSize
+	block1.Size = block.Size
+	block1.Weight = block.Weight
+	block1.Height = block.Height
+	block1.Version = block.Version
+	block1.VersionHex = block.VersionHex
+	block1.MerkleRoot = block.MerkleRoot
+	block1.Time = block.Time
+	block1.Nonce = block.Nonce
+	block1.Bits = block.Bits
+	block1.Difficulty = block.Difficulty
+	block1.PreviousHash = block.PreviousHash
+	block1.NextHash = block.NextHash
 	for _, tx := range block.Tx {
 		txhash, _ := chainhash.NewHashFromStr(tx)
 		sugar.Info("Get txhash: ", txhash)
@@ -68,9 +83,9 @@ func (btcClient *bitcoinClientAlias) getBlock(height int32) ([]*btcjson.TxRawRes
 			return nil, err
 		}
 		sugar.Info("Get transactionVerbose: ", transactionVerbose)
-		transactionVerboses = append(transactionVerboses, transactionVerbose)
+		block1.Tx = append(block1.Tx, *transactionVerbose)
 	}
-	return transactionVerboses, nil
+	return &block1, nil
 }
 
 func (btcClient *bitcoinClientAlias) getBlock5(height int32) (*btcjson.GetBlockVerboseTxResult, error) {
