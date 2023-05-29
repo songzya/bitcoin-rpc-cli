@@ -117,11 +117,11 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		} else {
 			sugar.Info("Get block count: ", cnt)
 		}
-		block, err := btcClient.getBlock(20000)
+		tx, err := btcClient.getBlock(20000)
 		if err != nil {
 			sugar.Fatal("Get block error: ", err.Error())
 		} else {
-			sugar.Fatal("Get block info: ", block)
+			sugar.Info("Get tx info: ", tx)
 		}
 		// 这个地址交易数据比较明显，
 		// 结合 https://blockchain.info/address/12cbQLTFMXRnSzktFkuoG3eHoMeFtpTu3S 的交易数据测试验证同步逻辑 (该地址上 2009 年的交易数据)

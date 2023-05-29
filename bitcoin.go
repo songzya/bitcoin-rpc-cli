@@ -67,7 +67,7 @@ func (btcClient *bitcoinClientAlias) getBlock(height int32) ([]*btcjson.TxRawRes
 		if err != nil {
 			return nil, err
 		}
-		sugar.Info("Get transactionVerbose: ", transactionVerbose)
+		//sugar.Info("Get transactionVerbose: ", transactionVerbose)
 		transactionVerboses = append(transactionVerboses, transactionVerbose)
 	}
 	return transactionVerboses, nil
