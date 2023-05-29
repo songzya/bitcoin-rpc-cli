@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	btcjson1 "github.com/btcsuite/btcd/btcjson"
+	"github.com/btcsuite/btcd/btcutil"
 	"github.com/shopspring/decimal"
 	"github.com/songzya/bitcoin-rpc-cli/btcjson"
 	"github.com/songzya/bitcoin-rpc-cli/rpcclient"
@@ -48,7 +49,19 @@ func (btcClient *bitcoinClientAlias) ReSetSync(hightest int32, elasticClient *el
 	btcClient.dumpToES(int32(1), hightest, int(ROLLBACKHEIGHT), elasticClient)
 }
 
-func (btcClient *bitcoinClientAlias) getBlock(height int32) (*btcjson.GetBlockVerboseTxResult, error) {
+func (btcClient *bitcoinClientAlias) getBlock(height int32) (*btcutil.Tx, error) {
+	blockHash, err := btcClient.GetBlockHash(int64(height))
+	if err != nil {
+		return nil, err
+	}
+
+	block, err := btcClient.GetRawTransaction(blockHash)
+	if err != nil {
+		return nil, err
+	}
+	return block, nil
+}
+func (btcClient *bitcoinClientAlias) getBlock2(height int32) (*btcjson.GetBlockVerboseTxResult, error) {
 	blockHash, err := btcClient.GetBlockHash(int64(height))
 	if err != nil {
 		return nil, err

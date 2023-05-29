@@ -48,7 +48,7 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 			sugar.Fatal("Can't query best block in es")
 		}
 
-		nodeblock, err := btcClient.getBlock(info.Headers)
+		nodeblock, err := btcClient.getBlock1(info.Headers)
 		if err != nil {
 			sugar.Fatal("Can't query block from bitcoind")
 		}
