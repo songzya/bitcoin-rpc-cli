@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/btcsuite/btcd/btcjson"
 	"github.com/olivere/elastic"
 	"github.com/shopspring/decimal"
+	"github.com/songzya/bitcoin-rpc-cli/btcjson"
 )
 
 type elasticClientAlias struct {

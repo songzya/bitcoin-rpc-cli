@@ -8,8 +8,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
-	btcjson1 "github.com/btcsuite/btcd/btcjson"
-
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
@@ -128,14 +126,14 @@ type FutureGetRawTransactionVerboseResult chan *Response
 
 // Receive waits for the Response promised by the future and returns information
 // about a transaction given its hash.
-func (r FutureGetRawTransactionVerboseResult) Receive() (*btcjson1.TxRawResult, error) {
+func (r FutureGetRawTransactionVerboseResult) Receive() (*btcjson.TxRawResult, error) {
 	res, err := ReceiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as a gettrawtransaction result object.
-	var rawTxResult btcjson1.TxRawResult
+	var rawTxResult btcjson.TxRawResult
 	err = json.Unmarshal(res, &rawTxResult)
 	if err != nil {
 		return nil, err
@@ -163,7 +161,7 @@ func (c *Client) GetRawTransactionVerboseAsync(txHash *chainhash.Hash) FutureGet
 // its hash.
 //
 // See GetRawTransaction to obtain only the transaction already deserialized.
-func (c *Client) GetRawTransactionVerbose(txHash *chainhash.Hash) (*btcjson1.TxRawResult, error) {
+func (c *Client) GetRawTransactionVerbose(txHash *chainhash.Hash) (*btcjson.TxRawResult, error) {
 	return c.GetRawTransactionVerboseAsync(txHash).Receive()
 }
 

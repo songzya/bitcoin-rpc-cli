@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"time"
 
-	//"github.com/btcsuite/btcd/btcjson"
+	//"github.com/songzya/bitcoin-rpc-cli/btcjson"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"

@@ -8,8 +8,6 @@ import (
 
 	"github.com/olivere/elastic"
 	"github.com/shopspring/decimal"
-
-	btcjson1 "github.com/btcsuite/btcd/btcjson"
 	"github.com/songzya/bitcoin-rpc-cli/btcjson"
 	//"github.com/dogecoinw/doged/btcjson"
 )
@@ -351,7 +349,7 @@ func (esClient *elasticClientAlias) syncVinsBalance(ctx context.Context, vinAddr
 	}
 }
 
-func (esClient *elasticClientAlias) syncVout(vout btcjson1.Vout, tx btcjson1.TxRawResult, bulkRequest *elastic.BulkService) bool {
+func (esClient *elasticClientAlias) syncVout(vout btcjson.Vout, tx btcjson.TxRawResult, bulkRequest *elastic.BulkService) bool {
 	//  bulk insert vouts
 	newVout, err := newVoutFun(vout, tx.Vin, tx.Txid)
 	if err != nil {
@@ -390,20 +388,8 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 
 	for _, tx := range block.Tx {
 		// es 中 vout 的 used 字段为 nil 涉及到的 vins 地址余额不用回滚
-		var Vin []btcjson1.Vin
-		var ttVin btcjson1.Vin
-		var ii = 0
-		for _, tVin := range tx.Vin {
-			ttVin.Coinbase = tVin.Coinbase
-			ttVin.Txid = tVin.Txid
-			ttVin.Vout = tVin.Vout
-			ttVin.ScriptSig = tVin.ScriptSig
-			ttVin.Sequence = tVin.Sequence
-			ttVin.Witness = tVin.Witness
-			Vin = append(Vin, ttVin)
-			ii++
-		}
-		voutWithIDSliceForVins, _ := esClient.QueryVoutsByUsedFieldAndBelongTxID(ctx, Vin, tx.Txid)
+
+		voutWithIDSliceForVins, _ := esClient.QueryVoutsByUsedFieldAndBelongTxID(ctx, tx.Vin, tx.Txid)
 
 		// 如果 len(voutWithIDSliceForVins) 为 0 ，则表面已经回滚过了，
 		for _, voutWithID := range voutWithIDSliceForVins {

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	btcjson1 "github.com/btcsuite/btcd/btcjson"
 	//"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/shopspring/decimal"
@@ -235,7 +234,7 @@ func blockWithTxDetail(block *btcjson.GetBlockVerboseTxResult) interface{} {
 	return blockWithTx
 }
 
-func blockTx(txs []btcjson1.TxRawResult) []map[string]interface{} {
+func blockTx(txs []btcjson.TxRawResult) []map[string]interface{} {
 	var rawTxs []map[string]interface{}
 	for _, tx := range txs {
 		// https://tradeblock.com/blog/bitcoin-0-8-5-released-provides-critical-bug-fixes/
@@ -259,7 +258,7 @@ func blockTx(txs []btcjson1.TxRawResult) []map[string]interface{} {
 	return rawTxs
 }
 
-func txVouts(tx btcjson1.TxRawResult) []map[string]interface{} {
+func txVouts(tx btcjson.TxRawResult) []map[string]interface{} {
 	var vouts []map[string]interface{}
 	for _, vout := range tx.Vout {
 		vouts = append(vouts, map[string]interface{}{
@@ -276,7 +275,7 @@ func txVouts(tx btcjson1.TxRawResult) []map[string]interface{} {
 	return vouts
 }
 
-func txVins(tx btcjson1.TxRawResult) []map[string]interface{} {
+func txVins(tx btcjson.TxRawResult) []map[string]interface{} {
 	var vins []map[string]interface{}
 	for _, vin := range tx.Vin {
 		if len(tx.Vin) == 1 && len(vin.Coinbase) != 0 && len(vin.Txid) == 0 {
@@ -299,7 +298,7 @@ func txVins(tx btcjson1.TxRawResult) []map[string]interface{} {
 }
 
 // get addresses in bitcoin vout
-func voutAddressFun(vout btcjson1.Vout) (*[]string, error) {
+func voutAddressFun(vout btcjson.Vout) (*[]string, error) {
 	var addresses []string
 	if len(vout.ScriptPubKey.Addresses) > 0 {
 		addresses = vout.ScriptPubKey.Addresses
@@ -312,7 +311,7 @@ func voutAddressFun(vout btcjson1.Vout) (*[]string, error) {
 }
 
 // VoutStream elasticsearch 中 voutstream Type 数据
-func newVoutFun(vout btcjson1.Vout, vins []btcjson1.Vin, TxID string) (*VoutStream, error) {
+func newVoutFun(vout btcjson.Vout, vins []btcjson.Vin, TxID string) (*VoutStream, error) {
 	coinbase := false
 	if len(vins[0].Coinbase) != 0 && len(vins[0].Txid) == 0 {
 		coinbase = true
@@ -345,7 +344,7 @@ func newBalanceJournalFun(address, ope, txid string, amount float64) BalanceJour
 }
 
 // elasticsearch 中 txstream Type 数据
-func esTxFun(tx btcjson1.TxRawResult, blockHash string, simpleVins, simpleVouts []AddressWithValueInTx, vinAmount, voutAmount decimal.Decimal) *esTx {
+func esTxFun(tx btcjson.TxRawResult, blockHash string, simpleVins, simpleVouts []AddressWithValueInTx, vinAmount, voutAmount decimal.Decimal) *esTx {
 	// caculate tx fee
 	fee := vinAmount.Sub(voutAmount)
 	if len(tx.Vin) == 1 && len(tx.Vin[0].Coinbase) != 0 && len(tx.Vin[0].Txid) == 0 || vinAmount.Equal(voutAmount) {
@@ -369,7 +368,7 @@ func esTxFun(tx btcjson1.TxRawResult, blockHash string, simpleVins, simpleVouts 
 // *[]*AddressWithValueInTx for elasticsearch tx Type vouts field
 // *[]interface{} all addresses related to the vout
 // *[]*Balance all addresses related to the vout with value amount
-func parseTxVout(vout btcjson1.Vout, txid string) ([]AddressWithValueInTx, []interface{}, []Balance, []AddressWithAmountAndTxid) {
+func parseTxVout(vout btcjson.Vout, txid string) ([]AddressWithValueInTx, []interface{}, []Balance, []AddressWithAmountAndTxid) {
 	var (
 		txVoutsField                      []AddressWithValueInTx
 		voutAddresses                     []interface{} // All addresses related with vout in a block
@@ -417,7 +416,7 @@ func parseESVout(voutWithID VoutWithID, txid string) ([]AddressWithValueInTx, []
 	return txTypeVinsField, vinAddresses, vinAddressWithAmountSlice, vinAddressWithAmountAndTxidSlice
 }
 
-func indexedVinsFun(vins []btcjson1.Vin) []IndexUTXO {
+func indexedVinsFun(vins []btcjson.Vin) []IndexUTXO {
 	var IndexUTXOs []IndexUTXO
 	for _, vin := range vins {
 		item := IndexUTXO{vin.Txid, vin.Vout}
@@ -426,7 +425,7 @@ func indexedVinsFun(vins []btcjson1.Vin) []IndexUTXO {
 	return IndexUTXOs
 }
 
-func indexedVoutsFun(vouts []btcjson1.Vout, txid string) []IndexUTXO {
+func indexedVoutsFun(vouts []btcjson.Vout, txid string) []IndexUTXO {
 	var IndexUTXOs []IndexUTXO
 	for _, vout := range vouts {
 		IndexUTXOs = append(IndexUTXOs, IndexUTXO{txid, vout.N})

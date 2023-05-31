@@ -8,10 +8,8 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
-
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 
-	btcjson1 "github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/wire"
 )
@@ -99,23 +97,23 @@ type GetBlockVerboseResult struct {
 // getblock returns an object whose tx field is an array of raw transactions.
 // Use GetBlockVerboseResult to unmarshal data received from passing verbose=1 to getblock.
 type GetBlockVerboseTxResult struct {
-	Hash          string                 `json:"hash"`
-	Confirmations int64                  `json:"confirmations"`
-	StrippedSize  int32                  `json:"strippedsize"`
-	Size          int32                  `json:"size"`
-	Weight        int32                  `json:"weight"`
-	Height        int64                  `json:"height"`
-	Version       int32                  `json:"version"`
-	VersionHex    string                 `json:"versionHex"`
-	MerkleRoot    string                 `json:"merkleroot"`
-	Tx            []btcjson1.TxRawResult `json:"tx,omitempty"`
-	RawTx         []btcjson1.TxRawResult `json:"rawtx,omitempty"` // Deprecated: removed in Bitcoin Core
-	Time          int64                  `json:"time"`
-	Nonce         uint32                 `json:"nonce"`
-	Bits          string                 `json:"bits"`
-	Difficulty    float64                `json:"difficulty"`
-	PreviousHash  string                 `json:"previousblockhash"`
-	NextHash      string                 `json:"nextblockhash,omitempty"`
+	Hash          string        `json:"hash"`
+	Confirmations int64         `json:"confirmations"`
+	StrippedSize  int32         `json:"strippedsize"`
+	Size          int32         `json:"size"`
+	Weight        int32         `json:"weight"`
+	Height        int64         `json:"height"`
+	Version       int32         `json:"version"`
+	VersionHex    string        `json:"versionHex"`
+	MerkleRoot    string        `json:"merkleroot"`
+	Tx            []TxRawResult `json:"tx,omitempty"`
+	RawTx         []TxRawResult `json:"rawtx,omitempty"` // Deprecated: removed in Bitcoin Core
+	Time          int64         `json:"time"`
+	Nonce         uint32        `json:"nonce"`
+	Bits          string        `json:"bits"`
+	Difficulty    float64       `json:"difficulty"`
+	PreviousHash  string        `json:"previousblockhash"`
+	NextHash      string        `json:"nextblockhash,omitempty"`
 }
 
 // GetChainTxStatsResult models the data from the getchaintxstats command.
@@ -512,21 +510,21 @@ type GetNetTotalsResult struct {
 // ScriptSig models a signature script.  It is defined separately since it only
 // applies to non-coinbase.  Therefore the field in the Vin structure needs
 // to be a pointer.
-//type ScriptSig struct {
-//	Asm string `json:"asm"`
-//	Hex string `json:"hex"`
-//}
+type ScriptSig struct {
+	Asm string `json:"asm"`
+	Hex string `json:"hex"`
+}
 
 // Vin models parts of the tx data.  It is defined separately since
 // getrawtransaction, decoderawtransaction, and searchrawtransaction use the
 // same structure.
 type Vin struct {
-	Coinbase  string              `json:"coinbase"`
-	Txid      string              `json:"txid"`
-	Vout      uint32              `json:"vout"`
-	ScriptSig *btcjson1.ScriptSig `json:"scriptSig"`
-	Sequence  uint32              `json:"sequence"`
-	Witness   []string            `json:"txinwitness"`
+	Coinbase  string     `json:"coinbase"`
+	Txid      string     `json:"txid"`
+	Vout      uint32     `json:"vout"`
+	ScriptSig *ScriptSig `json:"scriptSig"`
+	Sequence  uint32     `json:"sequence"`
+	Witness   []string   `json:"txinwitness"`
 }
 
 // IsCoinBase returns a bool to show if a Vin is a Coinbase one or not.
@@ -557,11 +555,11 @@ func (v *Vin) MarshalJSON() ([]byte, error) {
 
 	if v.HasWitness() {
 		txStruct := struct {
-			Txid      string              `json:"txid"`
-			Vout      uint32              `json:"vout"`
-			ScriptSig *btcjson1.ScriptSig `json:"scriptSig"`
-			Witness   []string            `json:"txinwitness"`
-			Sequence  uint32              `json:"sequence"`
+			Txid      string     `json:"txid"`
+			Vout      uint32     `json:"vout"`
+			ScriptSig *ScriptSig `json:"scriptSig"`
+			Witness   []string   `json:"txinwitness"`
+			Sequence  uint32     `json:"sequence"`
 		}{
 			Txid:      v.Txid,
 			Vout:      v.Vout,
@@ -573,10 +571,10 @@ func (v *Vin) MarshalJSON() ([]byte, error) {
 	}
 
 	txStruct := struct {
-		Txid      string              `json:"txid"`
-		Vout      uint32              `json:"vout"`
-		ScriptSig *btcjson1.ScriptSig `json:"scriptSig"`
-		Sequence  uint32              `json:"sequence"`
+		Txid      string     `json:"txid"`
+		Vout      uint32     `json:"vout"`
+		ScriptSig *ScriptSig `json:"scriptSig"`
+		Sequence  uint32     `json:"sequence"`
 	}{
 		Txid:      v.Txid,
 		Vout:      v.Vout,
@@ -594,13 +592,13 @@ type PrevOut struct {
 
 // VinPrevOut is like Vin except it includes PrevOut.  It is used by searchrawtransaction
 type VinPrevOut struct {
-	Coinbase  string              `json:"coinbase"`
-	Txid      string              `json:"txid"`
-	Vout      uint32              `json:"vout"`
-	ScriptSig *btcjson1.ScriptSig `json:"scriptSig"`
-	Witness   []string            `json:"txinwitness"`
-	PrevOut   *PrevOut            `json:"prevOut"`
-	Sequence  uint32              `json:"sequence"`
+	Coinbase  string     `json:"coinbase"`
+	Txid      string     `json:"txid"`
+	Vout      uint32     `json:"vout"`
+	ScriptSig *ScriptSig `json:"scriptSig"`
+	Witness   []string   `json:"txinwitness"`
+	PrevOut   *PrevOut   `json:"prevOut"`
+	Sequence  uint32     `json:"sequence"`
 }
 
 // IsCoinBase returns a bool to show if a Vin is a Coinbase one or not.
@@ -629,12 +627,12 @@ func (v *VinPrevOut) MarshalJSON() ([]byte, error) {
 
 	if v.HasWitness() {
 		txStruct := struct {
-			Txid      string              `json:"txid"`
-			Vout      uint32              `json:"vout"`
-			ScriptSig *btcjson1.ScriptSig `json:"scriptSig"`
-			Witness   []string            `json:"txinwitness"`
-			PrevOut   *PrevOut            `json:"prevOut,omitempty"`
-			Sequence  uint32              `json:"sequence"`
+			Txid      string     `json:"txid"`
+			Vout      uint32     `json:"vout"`
+			ScriptSig *ScriptSig `json:"scriptSig"`
+			Witness   []string   `json:"txinwitness"`
+			PrevOut   *PrevOut   `json:"prevOut,omitempty"`
+			Sequence  uint32     `json:"sequence"`
 		}{
 			Txid:      v.Txid,
 			Vout:      v.Vout,
@@ -647,11 +645,11 @@ func (v *VinPrevOut) MarshalJSON() ([]byte, error) {
 	}
 
 	txStruct := struct {
-		Txid      string              `json:"txid"`
-		Vout      uint32              `json:"vout"`
-		ScriptSig *btcjson1.ScriptSig `json:"scriptSig"`
-		PrevOut   *PrevOut            `json:"prevOut,omitempty"`
-		Sequence  uint32              `json:"sequence"`
+		Txid      string     `json:"txid"`
+		Vout      uint32     `json:"vout"`
+		ScriptSig *ScriptSig `json:"scriptSig"`
+		PrevOut   *PrevOut   `json:"prevOut,omitempty"`
+		Sequence  uint32     `json:"sequence"`
 	}{
 		Txid:      v.Txid,
 		Vout:      v.Vout,
