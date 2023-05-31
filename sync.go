@@ -63,12 +63,12 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcClient bitcoinClientAlias) {
 	rollbackIndex := int(from) - size
 	beginSynsIndex := int32(rollbackIndex)
-	if rollbackIndex <= 0 {
-		beginSynsIndex = 0
+	if rollbackIndex <= 1 {
+		beginSynsIndex = 1
 	}
 
 	SyncBeginRecordIndex := strconv.FormatInt(int64(beginSynsIndex), 10)
-	if beginSynsIndex != 0 {
+	if beginSynsIndex != 1 {
 		SyncBeginRecord, err := esClient.Get().Index("block").Type("block").Id(SyncBeginRecordIndex).Do(context.Background())
 		if err != nil {
 			sugar.Fatal("Query SyncBeginRecord error")
@@ -122,7 +122,7 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		//	sugar.Info("Get tx info: ", tx)
 		//}
 		sugar.Info("Get height: ", height)
-		block, err := btcClient.getBlock5(height)
+		block, err := btcClient.getBlock(height)
 		if err != nil {
 			sugar.Fatal("dumpToES Get block error: ", err.Error())
 		} else {
@@ -383,7 +383,7 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 
 	// rollback: delete txs in es by block hash
 	if e := esClient.DeleteEsTxsByBlockHash(ctx, block.Hash); e != nil {
-		sugar.Fatal("rollback block err: ", block.Hash, " fail to delete")
+		sugar.Info("rollback block err: ", block.Hash, " fail to delete")
 	}
 
 	for _, tx := range block.Tx {
