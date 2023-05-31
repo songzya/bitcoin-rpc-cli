@@ -63,8 +63,8 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcClient bitcoinClientAlias) {
 	rollbackIndex := int(from) - size
 	beginSynsIndex := int32(rollbackIndex)
-	if rollbackIndex <= 1 {
-		beginSynsIndex = 1
+	if rollbackIndex <= 0 {
+		beginSynsIndex = 0
 	}
 
 	SyncBeginRecordIndex := strconv.FormatInt(int64(beginSynsIndex), 10)
@@ -122,9 +122,9 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		//	sugar.Info("Get tx info: ", tx)
 		//}
 		sugar.Info("Get height: ", height)
-		block, err := btcClient.getBlock(height)
+		block, err := btcClient.getBlock5(height)
 		if err != nil {
-			sugar.Fatal("Get block error: ", err.Error())
+			sugar.Fatal("dumpToES Get block error: ", err.Error())
 		} else {
 			sugar.Info("Get tx info: ", block)
 		}

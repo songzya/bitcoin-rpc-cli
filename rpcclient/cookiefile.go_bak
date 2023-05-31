@@ -6,7 +6,7 @@ package rpcclient
 
 import (
 	"fmt"
-	//"github.com/btcsuite/btcd/btcjson"
+	//"github.com/songzya/bitcoin-rpc-cli/btcjson"
 	"github.com/songzya/bitcoin-rpc-cli/btcjson"
 )
 
