@@ -95,6 +95,7 @@ func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcC
 }
 
 func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elasticClient *elasticClientAlias) {
+	sugar.Info("Get from: ", from, ",  end : ", end, ", size :", size)
 	for height := from; height < end; height++ {
 		dumpBlockTime := time.Now()
 		//hash, err1 := btcClient.GetBlockHash(int64(2))
@@ -140,7 +141,7 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 func (esClient *elasticClientAlias) RollBackAndSyncTx(from, height int32, size int, block *btcjson.GetBlockVerboseTxResult) {
 	// 回滚时，es 中 best height + 1 中的 vout, balance, tx 都需要回滚。
 	ctx := context.Background()
-	if height <= (from + int32(size+1)) {
+	if (from != 1) && (height <= (from + int32(size+1))) {
 		esClient.RollbackTxVoutBalanceByBlock(ctx, block)
 	}
 
