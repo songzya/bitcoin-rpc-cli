@@ -150,7 +150,7 @@ func (esClient *elasticClientAlias) RollBackAndSyncTx(from, height int32, size i
 
 func (esClient *elasticClientAlias) RollBackAndSyncBlock(from, height int32, size int, block *btcjson.GetBlockVerboseTxResult) {
 	ctx := context.Background()
-	if height <= (from + int32(size)) {
+	if (from != 1) && (height <= (from + int32(size))) {
 		_, err := esClient.Delete().Index("block").Type("block").Id(strconv.FormatInt(int64(height), 10)).Refresh("true").Do(ctx)
 		if err != nil && err.Error() != "elastic: Error 404 (Not Found)" {
 			sugar.Fatal("Delete block docutment error: ", err.Error())
