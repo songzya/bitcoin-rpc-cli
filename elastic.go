@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -196,6 +197,7 @@ func (esClient *elasticClientAlias) BulkQueryBalanceUnlimitSize(ctx context.Cont
 	for _, uniquAddressI := range uniquAddresses {
 		uniqueAddressesI = append(uniqueAddressesI, uniquAddressI)
 	}
+	fmt.Println("uniqueAddressesI len", len(uniqueAddressesI))
 
 	var (
 		balanceWithIDs []*BalanceWithID
@@ -211,6 +213,7 @@ func (esClient *elasticClientAlias) BulkQueryBalanceUnlimitSize(ctx context.Cont
 		balanceWithIDs = append(balanceWithIDs, balanceWithIDsTmp...)
 	}
 	if len(uniqueAddressesI) > 0 {
+		fmt.Println("uniqueAddressesI :", uniqueAddressesI)
 		balanceWithIDsTmp, err := esClient.BulkQueryBalance(ctx, uniqueAddressesI...)
 		if err != nil {
 			sugar.Fatal("Chunks addresses error")
