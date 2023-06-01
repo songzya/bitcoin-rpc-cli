@@ -85,17 +85,21 @@ func (esClient *elasticClientAlias) QueryVoutWithVinsOrVoutsUnlimitSize(ctx cont
 	for len(IndexUTXOs) >= 500 {
 		IndexUTXOTmp, IndexUTXOs = IndexUTXOs[:500], IndexUTXOs[500:]
 		voutWithIDsTmp, err := esClient.QueryVoutWithVinsOrVouts(ctx, IndexUTXOTmp)
-		if err != nil {
-			sugar.Fatal("Chunks IndexUTXOs error", err.Error())
+		if voutWithIDsTmp != nil {
+			if err != nil {
+				sugar.Fatal("Chunks IndexUTXOs error", err.Error())
+			}
+			voutWithIDs = append(voutWithIDs, voutWithIDsTmp...)
 		}
-		voutWithIDs = append(voutWithIDs, voutWithIDsTmp...)
 	}
 	if len(IndexUTXOs) > 0 {
 		voutWithIDsTmp, err := esClient.QueryVoutWithVinsOrVouts(ctx, IndexUTXOs)
-		if err != nil {
-			sugar.Fatal("Chunks IndexUTXOs error", err.Error())
+		if voutWithIDsTmp != nil {
+			if err != nil {
+				sugar.Fatal("Chunks IndexUTXOs error", err.Error())
+			}
+			voutWithIDs = append(voutWithIDs, voutWithIDsTmp...)
 		}
-		voutWithIDs = append(voutWithIDs, voutWithIDsTmp...)
 	}
 	return voutWithIDs
 }

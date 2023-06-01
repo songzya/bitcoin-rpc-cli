@@ -13,7 +13,7 @@ import (
 )
 
 // ROLLBACKHEIGHT 回滚个数
-const ROLLBACKHEIGHT = 5
+const ROLLBACKHEIGHT = 0
 
 // Sync dump bitcoin chaindata to es
 func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
