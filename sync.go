@@ -22,6 +22,9 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 		sugar.Fatal("Get info error: ", err.Error())
 	}
 	sugar.Warn("info", info)
+	btcClient.ReSetSync(info.Headers, esClient)
+	return true
+
 	var DBCurrentHeight float64
 	agg, err := esClient.MaxAgg("height", "block", "block")
 	if err != nil {
