@@ -13,7 +13,7 @@ import (
 )
 
 // ROLLBACKHEIGHT 回滚个数
-const ROLLBACKHEIGHT = 0
+const ROLLBACKHEIGHT = 1
 
 // Sync dump bitcoin chaindata to es
 func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
@@ -22,8 +22,8 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 		sugar.Fatal("Get info error: ", err.Error())
 	}
 	sugar.Warn("info", info)
-	btcClient.ReSetSync(info.Headers, esClient)
-	return true
+	//btcClient.ReSetSync(info.Headers, esClient)
+	//return true
 
 	var DBCurrentHeight float64
 	agg, err := esClient.MaxAgg("height", "block", "block")
@@ -99,7 +99,7 @@ func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcC
 
 func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elasticClient *elasticClientAlias) {
 	sugar.Info("Get from: ", from, ",  end : ", end, ", size :", size)
-	end = 5
+	end = 7
 	dumpBlockTime1 := time.Now()
 	for height := from; height < end; height++ {
 		dumpBlockTime := time.Now()
