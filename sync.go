@@ -432,7 +432,7 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 	UniqueVinAddressesWithSumWithdraw = calculateUniqueAddressWithSumForVinOrVout(vinAddresses, vinAddressWithAmountSlice)
 	bulkQueryVinBalance, err := esClient.BulkQueryBalance(ctx, vinAddresses...)
 	if err != nil {
-		sugar.Fatal("Rollback: query vin balance error: ", err.Error())
+		sugar.Error("Rollback: query vin balance error: ", err.Error())
 	}
 	vinBalancesWithIDs = bulkQueryVinBalance
 
@@ -440,7 +440,7 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 	UniqueVoutAddressesWithSumDeposit = calculateUniqueAddressWithSumForVinOrVout(voutAddresses, voutAddressWithAmountSlice)
 	bulkQueryVoutBalance, err := esClient.BulkQueryBalance(ctx, voutAddresses...)
 	if err != nil {
-		sugar.Fatal("Rollback: query vout balance error: ", err.Error())
+		sugar.Error("Rollback: query vout balance error: ", err.Error())
 	}
 	voutBalancesWithIDs = bulkQueryVoutBalance
 
