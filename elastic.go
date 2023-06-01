@@ -208,7 +208,7 @@ func (esClient *elasticClientAlias) BulkQueryBalanceUnlimitSize(ctx context.Cont
 		addressesTmp, uniqueAddressesI = uniqueAddressesI[:500], uniqueAddressesI[500:]
 		balanceWithIDsTmp, err := esClient.BulkQueryBalance(ctx, addressesTmp...)
 		if err != nil {
-			sugar.Fatal("Chunks addresses error")
+			sugar.Error("Chunks addresses error")
 		}
 		balanceWithIDs = append(balanceWithIDs, balanceWithIDsTmp...)
 	}
@@ -216,7 +216,7 @@ func (esClient *elasticClientAlias) BulkQueryBalanceUnlimitSize(ctx context.Cont
 		fmt.Println("uniqueAddressesI :", uniqueAddressesI)
 		balanceWithIDsTmp, err := esClient.BulkQueryBalance(ctx, uniqueAddressesI...)
 		if err != nil {
-			sugar.Fatal("Chunks addresses error")
+			sugar.Error("Chunks addresses error")
 		}
 		balanceWithIDs = append(balanceWithIDs, balanceWithIDsTmp...)
 	}
