@@ -24,7 +24,7 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 	}
 	sugar.Warn("info", info)
 	btcClient.ReSetSync(info.Headers, esClient)
-	return true
+	//return true
 
 	var DBCurrentHeight float64
 	agg, err := esClient.MaxAgg("height", "block", "block")
@@ -39,6 +39,7 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 	} else {
 		DBCurrentHeight = *agg
 	}
+	DBCurrentHeight = 2
 	sugar.Warn("DBCurrentHeight", DBCurrentHeight)
 	heightGap := info.Headers - int32(DBCurrentHeight)
 	switch {
