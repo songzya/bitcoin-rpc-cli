@@ -23,8 +23,8 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 		sugar.Fatal("Get info error: ", err.Error())
 	}
 	sugar.Warn("info", info)
-	btcClient.ReSetSync(info.Headers, esClient)
-	return true
+	//btcClient.ReSetSync(info.Headers, esClient)
+	//return true
 
 	var DBCurrentHeight float64
 	agg, err := esClient.MaxAgg("height", "block", "block")
@@ -39,7 +39,7 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 	} else {
 		DBCurrentHeight = *agg
 	}
-
+	sugar.Warn("DBCurrentHeight", DBCurrentHeight)
 	heightGap := info.Headers - int32(DBCurrentHeight)
 	switch {
 	case heightGap > 0:
@@ -99,8 +99,8 @@ func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcC
 }
 
 func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elasticClient *elasticClientAlias) {
+	end = from + 5
 	sugar.Info("Get from: ", from, ",  end : ", end, ", size :", size)
-	end = 7
 	dumpBlockTime1 := time.Now()
 	for height := from; height < end; height++ {
 		dumpBlockTime := time.Now()
