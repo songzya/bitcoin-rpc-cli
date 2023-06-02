@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -13,7 +14,7 @@ import (
 )
 
 // ROLLBACKHEIGHT 回滚个数
-const ROLLBACKHEIGHT = 1
+const ROLLBACKHEIGHT = 0
 
 // Sync dump bitcoin chaindata to es
 func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
@@ -22,8 +23,8 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 		sugar.Fatal("Get info error: ", err.Error())
 	}
 	sugar.Warn("info", info)
-	//btcClient.ReSetSync(info.Headers, esClient)
-	//return true
+	btcClient.ReSetSync(info.Headers, esClient)
+	return true
 
 	var DBCurrentHeight float64
 	agg, err := esClient.MaxAgg("height", "block", "block")
@@ -208,6 +209,9 @@ func (esClient *elasticClientAlias) syncTxVoutBalance(ctx context.Context, block
 		// get es vouts with id in elasticsearch by tx vins
 		indexVins := indexedVinsFun(tx.Vin)
 		voutWithIDs := esClient.QueryVoutWithVinsOrVoutsUnlimitSize(ctx, indexVins)
+		fmt.Println("vouWithIDs len :", len(voutWithIDs))
+		fmt.Println("vouWithIDs :", voutWithIDs)
+
 		for _, voutWithID := range voutWithIDs {
 			// vin amount
 			vinAmount = vinAmount.Add(decimal.NewFromFloat(voutWithID.Vout.Value))
@@ -242,10 +246,16 @@ func (esClient *elasticClientAlias) syncTxVoutBalance(ctx context.Context, block
 
 	// bulk add balancejournal doc (sync vout: add balance)
 	esClient.BulkInsertBalanceJournal(ctx, voutAddressWithAmountAndTxidSlice, "sync+")
+	fmt.Println("voutAddressWithAmountAndTxidSlice len :", len(voutAddressWithAmountAndTxidSlice))
+	fmt.Println("voutAddressWithAmountAndTxidSlice :", voutAddressWithAmountAndTxidSlice)
 	// bulk add balancejournal doc (sync vin: sub balance)
 	esClient.BulkInsertBalanceJournal(ctx, vinAddressWithAmountAndTxidSlice, "sync-")
+	fmt.Println("vinAddressWithAmountAndTxidSlice len :", len(vinAddressWithAmountAndTxidSlice))
+	fmt.Println("vinAddressWithAmountAndTxidSlice :", vinAddressWithAmountAndTxidSlice)
 	// bulk add tx doc
 	esClient.BulkInsertTxes(ctx, esTxs)
+	fmt.Println("esTxs len :", len(esTxs))
+	fmt.Println("esTxs :", esTxs)
 }
 
 func (esClient *elasticClientAlias) BulkInsertBalanceJournal(ctx context.Context, balancesWithID []AddressWithAmountAndTxid, ope string) {
