@@ -83,7 +83,7 @@ func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcC
 		if err != nil {
 			sugar.Fatal("Get info error: ", err.Error())
 		}
-
+		sugar.Info("SyncBeginRecord : ", SyncBeginRecord)
 		if !SyncBeginRecord.Found {
 			sugar.Fatal("can't get begin block, need to be resync")
 		} else {

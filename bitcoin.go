@@ -18,10 +18,10 @@ type bitcoinClientAlias struct {
 
 func (conf *configure) bitcoinClient() *rpcclient.Client {
 	connCfg := &rpcclient.ConnConfig{
-		Host:         strings.Join([]string{conf.BitcoinHost, conf.BitcoinPort}, ":"),
-		User:         conf.BitcoinUser,
-		Pass:         conf.BitcoinPass,
-		CookiePath:   "/root/.dogecoin/.cookie",
+		Host: strings.Join([]string{conf.BitcoinHost, conf.BitcoinPort}, ":"),
+		User: "admin",       //conf.BitcoinUser,
+		Pass: "1qa2ws3ed!@", //conf.BitcoinPass,
+		//CookiePath:   "/root/.dogecoin/.cookie",
 		HTTPPostMode: conf.BitcoinhttpMode,
 		DisableTLS:   conf.BitcoinDisableTLS,
 	}
