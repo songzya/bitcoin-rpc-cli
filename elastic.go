@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 	//"github.com/songzya/elastic"
 	"github.com/shopspring/decimal"
 	"github.com/songzya/bitcoin-rpc-cli/btcjson"
@@ -82,30 +82,30 @@ func (esClient *elasticClientAlias) MaxAgg(field, index, typeName string) (*floa
 	return maxAggRes.Value, nil
 }
 
-func (esClient *elasticClientAlias) MaxAgg1(field, index, typeName string) (*float64, error) {
-	ctx := context.Background()
-	hightestAgg := elastic.NewMaxAggregation().Field(field)
-	aggKey := strings.Join([]string{"max", field}, "_")
-	// Get Query params https://github.com/olivere/elastic/blob/release-branch.v6/search_aggs_metrics_max_test.go
-	// https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-metrics-max-aggregation.html
-	searchResult, err := NewSearchService(esClient.Client).
-		Index(index).Type(typeName).
-		Query(elastic.NewMatchAllQuery()).
-		Aggregation(aggKey, hightestAgg).
-		Do(ctx)
-	fmt.Println("MaxAgg searchResult:", searchResult)
-	if err != nil {
-		return nil, err
-	}
-	maxAggRes, found := searchResult.Aggregations.Max(aggKey)
-	fmt.Println("MaxAgg maxAggRes:", maxAggRes)
-	fmt.Println("MaxAgg found:", found)
-	if !found || maxAggRes.Value == nil {
-		return nil, errors.New("query max agg error")
-	}
-	fmt.Println("MaxAgg end")
-	return maxAggRes.Value, nil
-}
+//func (esClient *elasticClientAlias) MaxAgg1(field, index, typeName string) (*float64, error) {
+//	ctx := context.Background()
+//	hightestAgg := elastic.NewMaxAggregation().Field(field)
+//	aggKey := strings.Join([]string{"max", field}, "_")
+//	// Get Query params https://github.com/olivere/elastic/blob/release-branch.v6/search_aggs_metrics_max_test.go
+//	// https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-metrics-max-aggregation.html
+//	searchResult, err := NewSearchService(esClient.Client).
+//		Index(index).Type(typeName).
+//		Query(elastic.NewMatchAllQuery()).
+//		Aggregation(aggKey, hightestAgg).
+//		Do(ctx)
+//	fmt.Println("MaxAgg searchResult:", searchResult)
+//	if err != nil {
+//		return nil, err
+//	}
+//	maxAggRes, found := searchResult.Aggregations.Max(aggKey)
+//	fmt.Println("MaxAgg maxAggRes:", maxAggRes)
+//	fmt.Println("MaxAgg found:", found)
+//	if !found || maxAggRes.Value == nil {
+//		return nil, errors.New("query max agg error")
+//	}
+//	fmt.Println("MaxAgg end")
+//	return maxAggRes.Value, nil
+//}
 
 func (esClient *elasticClientAlias) QueryVoutWithVinsOrVoutsUnlimitSize(ctx context.Context, IndexUTXOs []IndexUTXO) []VoutWithID {
 	var (
@@ -150,7 +150,7 @@ func (esClient *elasticClientAlias) QueryVoutWithVinsOrVouts(ctx context.Context
 	var voutWithIDs []VoutWithID
 	for _, vout := range searchResult.Hits.Hits {
 		newVout := new(VoutStream)
-		if err := json.Unmarshal(*vout.Source, newVout); err != nil {
+		if err := json.Unmarshal(vout.Source, newVout); err != nil {
 			sugar.Fatalf(strings.Join([]string{"query vouts error: unmarshal json ", err.Error()}, " "))
 		}
 		voutWithIDs = append(voutWithIDs, VoutWithID{vout.Id, newVout})
@@ -168,7 +168,7 @@ func (esClient *elasticClientAlias) QueryEsBlockByHeight(ctx context.Context, he
 		return nil, errors.New(strings.Join([]string{"block:", blockHeightStr, "not fount in es when update txstream"}, ""))
 	}
 	NewBlock := new(btcjson.GetBlockVerboseResult)
-	err = json.Unmarshal(*res.Source, NewBlock)
+	err = json.Unmarshal(res.Source, NewBlock)
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +202,7 @@ func (esClient *elasticClientAlias) QueryVoutsByUsedFieldAndBelongTxID(ctx conte
 	var voutWithIDs []VoutWithID
 	for _, rawHit := range searchResult.Hits.Hits {
 		newVout := new(VoutStream)
-		if err := json.Unmarshal(*rawHit.Source, newVout); err != nil {
+		if err := json.Unmarshal(rawHit.Source, newVout); err != nil {
 			sugar.Fatal("rallback: unmarshal es vout error", err.Error())
 		}
 		esVoutIDS = append(esVoutIDS, rawHit.Id)
@@ -272,7 +272,7 @@ func (esClient *elasticClientAlias) BulkQueryBalance(ctx context.Context, addres
 
 	for _, balance := range searchResult.Hits.Hits {
 		b := new(Balance)
-		if err := json.Unmarshal(*balance.Source, b); err != nil {
+		if err := json.Unmarshal(balance.Source, b); err != nil {
 			return nil, errors.New(strings.Join([]string{"unmarshal error:", err.Error()}, " "))
 		}
 		balancesWithIDs = append(balancesWithIDs, &BalanceWithID{balance.Id, *b})

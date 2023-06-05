@@ -13,8 +13,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/olivere/elastic"
-	"github.com/olivere/elastic/uritemplates"
+	"github.com/olivere/elastic/v7"
+	"github.com/olivere/elastic/v7/uritemplates"
 )
 
 // Search for documents in Elasticsearch.
@@ -48,7 +48,7 @@ type SearchService struct {
 	maxConcurrentShardRequests *int  // max_concurrent_shard_requests
 	preFilterShardSize         *int  // pre_filter_shard_size
 	restTotalHitsAsInt         *bool // rest_total_hits_as_int
-	decoder                    Decoder
+	decoder                    DefaultDecoder
 }
 
 // NewSearchService creates a new service for searching in Elasticsearch.
