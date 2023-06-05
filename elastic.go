@@ -67,14 +67,17 @@ func (esClient *elasticClientAlias) MaxAgg(field, index, typeName string) (*floa
 		Query(elastic.NewMatchAllQuery()).
 		Aggregation(aggKey, hightestAgg).
 		Do(ctx)
-
+	fmt.Println("MaxAgg searchResult:", searchResult)
 	if err != nil {
 		return nil, err
 	}
 	maxAggRes, found := searchResult.Aggregations.Max(aggKey)
+	fmt.Println("MaxAgg maxAggRes:", maxAggRes)
+	fmt.Println("MaxAgg found:", found)
 	if !found || maxAggRes.Value == nil {
 		return nil, errors.New("query max agg error")
 	}
+	fmt.Println("MaxAgg end")
 	return maxAggRes.Value, nil
 }
 
