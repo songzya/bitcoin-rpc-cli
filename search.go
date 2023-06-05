@@ -119,6 +119,7 @@ func (s *SearchService) Source(source interface{}) *SearchService {
 // Index sets the names of the indices to use for search.
 func (s *SearchService) Index(index ...string) *SearchService {
 	s.index = append(s.index, index...)
+	fmt.Println("====Index====")
 	return s
 }
 
@@ -131,6 +132,7 @@ func (s *SearchService) Type(typ ...string) *SearchService {
 // Timeout sets the timeout to use, e.g. "1s" or "1000ms".
 func (s *SearchService) Timeout(timeout string) *SearchService {
 	s.searchSource = s.searchSource.Timeout(timeout)
+	fmt.Println("====Timeout====")
 	return s
 }
 
@@ -197,6 +199,7 @@ func (s *SearchService) RequestCache(requestCache bool) *SearchService {
 // Query sets the query to perform, e.g. MatchAllQuery.
 func (s *SearchService) Query(query elastic.Query) *SearchService {
 	s.searchSource = s.searchSource.Query(query)
+	fmt.Println("====Query====")
 	return s
 }
 
@@ -243,6 +246,7 @@ func (s *SearchService) Suggester(suggester elastic.Suggester) *SearchService {
 // Aggregation adds an aggreation to perform as part of the search.
 func (s *SearchService) Aggregation(name string, aggregation elastic.Aggregation) *SearchService {
 	s.searchSource = s.searchSource.Aggregation(name, aggregation)
+	fmt.Println("====Aggregation====")
 	return s
 }
 
@@ -587,6 +591,7 @@ func (s *SearchService) Validate() error {
 // Do executes the search and returns a SearchResult.
 func (s *SearchService) Do(ctx context.Context) (*SearchResult, error) {
 	// Check pre-conditions
+	fmt.Println("====Do====")
 	if err := s.Validate(); err != nil {
 		return nil, err
 	}
@@ -596,18 +601,21 @@ func (s *SearchService) Do(ctx context.Context) (*SearchResult, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println("======Do1======")
 	// Perform request
 	var body interface{}
 	if s.source != nil {
+		fmt.Println("======Do2======")
 		body = s.source
 	} else {
+		fmt.Println("======Do3======")
 		src, err := s.searchSource.Source()
 		if err != nil {
 			return nil, err
 		}
 		body = src
 	}
+	fmt.Println("======Do4======")
 	res, err := s.client.PerformRequest(ctx, elastic.PerformRequestOptions{
 		Method:          "POST",
 		Path:            path,
