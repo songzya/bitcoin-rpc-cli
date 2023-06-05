@@ -81,7 +81,7 @@ func (btcClient *bitcoinClientAlias) getBlock(height int32) (*btcjson.GetBlockVe
 		if err != nil {
 			return nil, err
 		}
-		sugar.Info("Get transactionVerbose: ", transactionVerbose)
+		sugar.Info("Get transactionVerbose: ", transactionVerbose.Hash)
 		block1.Tx = append(block1.Tx, *transactionVerbose)
 	}
 	return &block1, nil

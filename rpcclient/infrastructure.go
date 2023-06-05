@@ -1028,7 +1028,7 @@ func (c *Client) SendCmd(cmd interface{}) chan *Response {
 		responseChan:   responseChan,
 	}
 	//fmt.Println("sendcmd id:", jReq.id)
-	fmt.Println("sendcmd method:", jReq.method)
+	//fmt.Println("sendcmd method:", jReq.method)
 	//fmt.Println("sendcmd cmd:", jReq.cmd)
 	//fmt.Println("sendcmd marshalledJSON:", jReq.marshalledJSON)
 	//fmt.Println("sendcmd responseChan:", jReq.responseChan)

@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+
+	//"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -14,7 +16,7 @@ import (
 )
 
 // ROLLBACKHEIGHT 回滚个数
-const ROLLBACKHEIGHT = 0
+const ROLLBACKHEIGHT = 3
 
 // Sync dump bitcoin chaindata to es
 func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
@@ -83,7 +85,7 @@ func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcC
 		if err != nil {
 			sugar.Fatal("Get info error: ", err.Error())
 		}
-		sugar.Info("SyncBeginRecord : ", SyncBeginRecord)
+		//sugar.Info("SyncBeginRecord : ", SyncBeginRecord)
 		if !SyncBeginRecord.Found {
 			sugar.Fatal("can't get begin block, need to be resync")
 		} else {
@@ -100,7 +102,7 @@ func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcC
 }
 
 func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elasticClient *elasticClientAlias) {
-	end = from + 5
+	end = from + 10
 	sugar.Info("Get from: ", from, ",  end : ", end, ", size :", size)
 	dumpBlockTime1 := time.Now()
 	for height := from; height < end; height++ {
@@ -134,7 +136,7 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		if err != nil {
 			sugar.Fatal("dumpToES Get block error: ", err.Error())
 		} else {
-			sugar.Info("Get tx info: ", block)
+			sugar.Info("Get block info: ", block.Hash)
 		}
 		// 这个地址交易数据比较明显，
 		// 结合 https://blockchain.info/address/12cbQLTFMXRnSzktFkuoG3eHoMeFtpTu3S 的交易数据测试验证同步逻辑 (该地址上 2009 年的交易数据)
@@ -210,8 +212,8 @@ func (esClient *elasticClientAlias) syncTxVoutBalance(ctx context.Context, block
 		// get es vouts with id in elasticsearch by tx vins
 		indexVins := indexedVinsFun(tx.Vin)
 		voutWithIDs := esClient.QueryVoutWithVinsOrVoutsUnlimitSize(ctx, indexVins)
-		fmt.Println("vouWithIDs len :", len(voutWithIDs))
-		fmt.Println("vouWithIDs :", voutWithIDs)
+		//fmt.Println("vouWithIDs len :", len(voutWithIDs))
+		//fmt.Println("vouWithIDs :", voutWithIDs)
 
 		for _, voutWithID := range voutWithIDs {
 			// vin amount
