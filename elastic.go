@@ -68,44 +68,16 @@ func (esClient *elasticClientAlias) MaxAgg(field, index, typeName string) (*floa
 		Query(elastic.NewMatchAllQuery()).
 		Aggregation(aggKey, hightestAgg).
 		Do(ctx)
-	fmt.Println("MaxAgg searchResult:", searchResult)
+
 	if err != nil {
 		return nil, err
 	}
 	maxAggRes, found := searchResult.Aggregations.Max(aggKey)
-	fmt.Println("MaxAgg maxAggRes:", maxAggRes)
-	fmt.Println("MaxAgg found:", found)
 	if !found || maxAggRes.Value == nil {
 		return nil, errors.New("query max agg error")
 	}
-	fmt.Println("MaxAgg end")
 	return maxAggRes.Value, nil
 }
-
-//func (esClient *elasticClientAlias) MaxAgg1(field, index, typeName string) (*float64, error) {
-//	ctx := context.Background()
-//	hightestAgg := elastic.NewMaxAggregation().Field(field)
-//	aggKey := strings.Join([]string{"max", field}, "_")
-//	// Get Query params https://github.com/olivere/elastic/blob/release-branch.v6/search_aggs_metrics_max_test.go
-//	// https://www.elastic.co/guide/en/elasticsearch/reference/6.2/search-aggregations-metrics-max-aggregation.html
-//	searchResult, err := NewSearchService(esClient.Client).
-//		Index(index).Type(typeName).
-//		Query(elastic.NewMatchAllQuery()).
-//		Aggregation(aggKey, hightestAgg).
-//		Do(ctx)
-//	fmt.Println("MaxAgg searchResult:", searchResult)
-//	if err != nil {
-//		return nil, err
-//	}
-//	maxAggRes, found := searchResult.Aggregations.Max(aggKey)
-//	fmt.Println("MaxAgg maxAggRes:", maxAggRes)
-//	fmt.Println("MaxAgg found:", found)
-//	if !found || maxAggRes.Value == nil {
-//		return nil, errors.New("query max agg error")
-//	}
-//	fmt.Println("MaxAgg end")
-//	return maxAggRes.Value, nil
-//}
 
 func (esClient *elasticClientAlias) QueryVoutWithVinsOrVoutsUnlimitSize(ctx context.Context, IndexUTXOs []IndexUTXO) []VoutWithID {
 	var (
@@ -117,7 +89,7 @@ func (esClient *elasticClientAlias) QueryVoutWithVinsOrVoutsUnlimitSize(ctx cont
 		voutWithIDsTmp, err := esClient.QueryVoutWithVinsOrVouts(ctx, IndexUTXOTmp)
 		if voutWithIDsTmp != nil {
 			if err != nil {
-				sugar.Error("Chunks IndexUTXOs error", err.Error())
+				sugar.Fatal("Chunks IndexUTXOs error", err.Error())
 			}
 			voutWithIDs = append(voutWithIDs, voutWithIDsTmp...)
 		}
@@ -126,7 +98,7 @@ func (esClient *elasticClientAlias) QueryVoutWithVinsOrVoutsUnlimitSize(ctx cont
 		voutWithIDsTmp, err := esClient.QueryVoutWithVinsOrVouts(ctx, IndexUTXOs)
 		if voutWithIDsTmp != nil {
 			if err != nil {
-				sugar.Error("Chunks IndexUTXOs error", err.Error())
+				sugar.Fatal("Chunks IndexUTXOs error", err.Error())
 			}
 			voutWithIDs = append(voutWithIDs, voutWithIDsTmp...)
 		}
@@ -226,7 +198,6 @@ func (esClient *elasticClientAlias) BulkQueryBalanceUnlimitSize(ctx context.Cont
 	for _, uniquAddressI := range uniquAddresses {
 		uniqueAddressesI = append(uniqueAddressesI, uniquAddressI)
 	}
-	fmt.Println("uniqueAddressesI len", len(uniqueAddressesI))
 
 	var (
 		balanceWithIDs []*BalanceWithID
@@ -237,15 +208,14 @@ func (esClient *elasticClientAlias) BulkQueryBalanceUnlimitSize(ctx context.Cont
 		addressesTmp, uniqueAddressesI = uniqueAddressesI[:500], uniqueAddressesI[500:]
 		balanceWithIDsTmp, err := esClient.BulkQueryBalance(ctx, addressesTmp...)
 		if err != nil {
-			sugar.Error("Chunks addresses error")
+			sugar.Fatal("Chunks addresses error")
 		}
 		balanceWithIDs = append(balanceWithIDs, balanceWithIDsTmp...)
 	}
 	if len(uniqueAddressesI) > 0 {
-		fmt.Println("uniqueAddressesI :", uniqueAddressesI)
 		balanceWithIDsTmp, err := esClient.BulkQueryBalance(ctx, uniqueAddressesI...)
 		if err != nil {
-			sugar.Error("Chunks addresses error")
+			sugar.Fatal("Chunks addresses error")
 		}
 		balanceWithIDs = append(balanceWithIDs, balanceWithIDsTmp...)
 	}

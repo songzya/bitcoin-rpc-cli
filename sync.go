@@ -23,7 +23,7 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 		sugar.Fatal("Get info error: ", err.Error())
 	}
 	sugar.Warn("info", info)
-	btcClient.ReSetSync(info.Headers, esClient)
+	//btcClient.ReSetSync(info.Headers, esClient)
 	//return true
 
 	var DBCurrentHeight float64
@@ -401,7 +401,7 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 
 	// rollback: delete txs in es by block hash
 	if e := esClient.DeleteEsTxsByBlockHash(ctx, block.Hash); e != nil {
-		sugar.Info("rollback block err: ", block.Hash, " fail to delete")
+		sugar.Fatal("rollback block err: ", block.Hash, " fail to delete")
 	}
 
 	for _, tx := range block.Tx {
@@ -443,7 +443,7 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 	UniqueVinAddressesWithSumWithdraw = calculateUniqueAddressWithSumForVinOrVout(vinAddresses, vinAddressWithAmountSlice)
 	bulkQueryVinBalance, err := esClient.BulkQueryBalance(ctx, vinAddresses...)
 	if err != nil {
-		sugar.Error("Rollback: query vin balance error: ", err.Error())
+		sugar.Fatal("Rollback: query vin balance error: ", err.Error())
 	}
 	vinBalancesWithIDs = bulkQueryVinBalance
 
@@ -451,7 +451,7 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 	UniqueVoutAddressesWithSumDeposit = calculateUniqueAddressWithSumForVinOrVout(voutAddresses, voutAddressWithAmountSlice)
 	bulkQueryVoutBalance, err := esClient.BulkQueryBalance(ctx, voutAddresses...)
 	if err != nil {
-		sugar.Error("Rollback: query vout balance error: ", err.Error())
+		sugar.Fatal("Rollback: query vout balance error: ", err.Error())
 	}
 	voutBalancesWithIDs = bulkQueryVoutBalance
 
