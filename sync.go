@@ -41,7 +41,7 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 	} else {
 		DBCurrentHeight = *agg
 	}
-	DBCurrentHeight = 2
+	//DBCurrentHeight = 2
 	sugar.Warn("DBCurrentHeight", DBCurrentHeight)
 	heightGap := info.Headers - int32(DBCurrentHeight)
 	switch {
