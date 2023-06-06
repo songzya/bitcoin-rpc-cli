@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+
 	//"fmt"
 	"strconv"
 	"strings"
@@ -232,6 +234,7 @@ func (esClient *elasticClientAlias) BulkQueryBalance(ctx context.Context, addres
 	uniqueAddresses := removeDuplicatesForSlice(addresses...)
 	for _, address := range uniqueAddresses {
 		qAddresses = append(qAddresses, address)
+		fmt.Println("address :", address)
 	}
 
 	q := elastic.NewTermsQuery("address", qAddresses...)
