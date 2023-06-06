@@ -234,7 +234,7 @@ func (esClient *elasticClientAlias) BulkQueryBalance(ctx context.Context, addres
 	uniqueAddresses := removeDuplicatesForSlice(addresses...)
 	for _, address := range uniqueAddresses {
 		qAddresses = append(qAddresses, address)
-		fmt.Println("address :", address)
+
 	}
 
 	q := elastic.NewTermsQuery("address", qAddresses...)
@@ -248,6 +248,8 @@ func (esClient *elasticClientAlias) BulkQueryBalance(ctx context.Context, addres
 		if err := json.Unmarshal(balance.Source, b); err != nil {
 			return nil, errors.New(strings.Join([]string{"unmarshal error:", err.Error()}, " "))
 		}
+		fmt.Println("address :", b.Address)
+		fmt.Println("amount :", b.Amount)
 		balancesWithIDs = append(balancesWithIDs, &BalanceWithID{balance.Id, *b})
 	}
 	return balancesWithIDs, nil
