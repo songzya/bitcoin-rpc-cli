@@ -246,7 +246,7 @@ func (c *Client) GetBlockVerboseAsync(blockHash *chainhash.Hash) FutureGetBlockV
 	// "If verbosity is 1, returns an Object with information about block ."
 	cmd := btcjson.NewGetBlockCmd(hash, btcjson.Bool(true))
 
-	fmt.Println("cmd =  ", cmd)
+	//fmt.Println("cmd =  ", cmd)
 
 	return FutureGetBlockVerboseResult{
 		client:   c,
