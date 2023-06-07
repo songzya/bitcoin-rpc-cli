@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/songzya/bitcoin-rpc-cli/btcjson"
+	"github.com/dogecoinw/doged/btcjson"
 )
 
 // TestBtcdExtCustomResults ensures any results that have custom marshalling

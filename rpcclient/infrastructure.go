@@ -28,7 +28,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/go-socks/socks"
 	"github.com/btcsuite/websocket"
-	"github.com/songzya/bitcoin-rpc-cli/btcjson"
+	"github.com/dogecoinw/doged/btcjson"
 )
 
 var (

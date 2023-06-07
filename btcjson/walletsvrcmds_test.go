@@ -12,7 +12,7 @@ import (
 	"testing"
 
 	"github.com/btcsuite/btcd/btcutil"
-	"github.com/songzya/bitcoin-rpc-cli/btcjson"
+	"github.com/dogecoinw/doged/btcjson"
 )
 
 // TestWalletSvrCmds tests all of the wallet server commands marshal and

@@ -9,7 +9,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/songzya/bitcoin-rpc-cli/btcjson"
+	"github.com/dogecoinw/doged/btcjson"
 )
 
 // TestUsageFlagStringer tests the stringized output for the UsageFlag type.

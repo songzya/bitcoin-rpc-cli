@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/songzya/bitcoin-rpc-cli/btcjson"
+	"github.com/dogecoinw/doged/btcjson"
 )
 
 // TestHelpers tests the various helper functions which create pointers to

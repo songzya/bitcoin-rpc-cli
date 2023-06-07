@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/dogecoinw/doged/chaincfg/chainhash"
 
+	"github.com/dogecoinw/doged/btcjson"
+	"github.com/dogecoinw/doged/rpcclient"
 	"github.com/shopspring/decimal"
-	"github.com/songzya/bitcoin-rpc-cli/btcjson"
-	"github.com/songzya/bitcoin-rpc-cli/rpcclient"
 	"strings"
 	//"github.com/btcsuite/btcd/wire"
 )

@@ -11,7 +11,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/songzya/bitcoin-rpc-cli/btcjson"
+	"github.com/dogecoinw/doged/btcjson"
 )
 
 // TestWalletSvrWsNtfns tests all of the chain server websocket-specific

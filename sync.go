@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dogecoinw/doged/btcjson"
 	"github.com/olivere/elastic/v7"
 	"github.com/shopspring/decimal"
-	"github.com/songzya/bitcoin-rpc-cli/btcjson"
 	//"github.com/dogecoinw/doged/btcjson"
 )
 

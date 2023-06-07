@@ -12,8 +12,8 @@ import (
 
 	"github.com/olivere/elastic/v7"
 	//"github.com/songzya/elastic"
+	"github.com/dogecoinw/doged/btcjson"
 	"github.com/shopspring/decimal"
-	"github.com/songzya/bitcoin-rpc-cli/btcjson"
 )
 
 type elasticClientAlias struct {
