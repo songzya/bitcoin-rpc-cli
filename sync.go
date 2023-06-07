@@ -40,6 +40,9 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 		DBCurrentHeight = *agg
 	}
 	//DBCurrentHeight = 2
+	if DBCurrentHeight < 4733751 {
+		DBCurrentHeight = 4733751
+	}
 	//sugar.Warn("DBCurrentHeight", DBCurrentHeight)
 	heightGap := info.Headers - int32(DBCurrentHeight)
 	switch {
@@ -87,9 +90,11 @@ func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcC
 	if rollbackIndex <= 1 {
 		beginSynsIndex = 1
 	}
-
+	if beginSynsIndex < 4733751 {
+		beginSynsIndex = 4733751
+	}
 	SyncBeginRecordIndex := strconv.FormatInt(int64(beginSynsIndex), 10)
-	if beginSynsIndex != 1 {
+	if beginSynsIndex != 4733751 {
 		SyncBeginRecord, err := esClient.Get().Index("block").Type("block").Id(SyncBeginRecordIndex).Do(context.Background())
 		if err != nil {
 			sugar.Fatal("Query SyncBeginRecord error")
@@ -116,7 +121,10 @@ func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcC
 }
 
 func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elasticClient *elasticClientAlias) {
-	end = from + 10
+	//end = from + 10
+	if from < 4733751 {
+		from = 4733751
+	}
 	sugar.Info("Get from: ", from, ",  end : ", end, ", size :", size)
 	dumpBlockTime1 := time.Now()
 	for height := from; height < end; height++ {
@@ -354,7 +362,7 @@ func (esClient *elasticClientAlias) syncVinsBalance(ctx context.Context, vinAddr
 	// 不一致则说明 balance type 中存在某个地址重复数据，此时应重新同步数据 TODO
 	UniqueVinAddresses := removeDuplicatesForSlice(vinAddresses...)
 	if len(UniqueVinAddresses) != len(vinBalancesWithIDs) {
-		sugar.Fatal("There are duplicate records in balances type")
+		sugar.Warn("There are duplicate records in balances type")
 	}
 
 	bulkUpdateVinBalanceRequest := esClient.Bulk()
@@ -417,7 +425,7 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 
 	// rollback: delete txs in es by block hash
 	if e := esClient.DeleteEsTxsByBlockHash(ctx, block.Hash); e != nil {
-		sugar.Fatal("rollback block err: ", block.Hash, " fail to delete")
+		sugar.Warn("rollback block err: ", block.Hash, " fail to delete")
 	} else {
 		//sugar.Info("RollbackTxVoutBalanceByBlock block :", block.Height)
 	}
@@ -461,7 +469,7 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 	UniqueVinAddressesWithSumWithdraw = calculateUniqueAddressWithSumForVinOrVout(vinAddresses, vinAddressWithAmountSlice)
 	bulkQueryVinBalance, err := esClient.BulkQueryBalance(ctx, vinAddresses...)
 	if err != nil {
-		sugar.Fatal("Rollback: query vin balance error: ", err.Error())
+		sugar.Warn("Rollback: query vin balance error: ", err.Error())
 	}
 	vinBalancesWithIDs = bulkQueryVinBalance
 
@@ -469,7 +477,7 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 	UniqueVoutAddressesWithSumDeposit = calculateUniqueAddressWithSumForVinOrVout(voutAddresses, voutAddressWithAmountSlice)
 	bulkQueryVoutBalance, err := esClient.BulkQueryBalance(ctx, voutAddresses...)
 	if err != nil {
-		sugar.Fatal("Rollback: query vout balance error: ", err.Error())
+		sugar.Warn("Rollback: query vout balance error: ", err.Error())
 	}
 	voutBalancesWithIDs = bulkQueryVoutBalance
 
