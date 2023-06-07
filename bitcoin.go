@@ -77,7 +77,7 @@ func (btcClient *bitcoinClientAlias) getBlockTx(height int32) (*btcjson.GetBlock
 	for _, tx := range block.Tx {
 		txhash, _ := chainhash.NewHashFromStr(tx)
 		//sugar.Info("Get txhash: ", txhash)
-		transactionVerbose, err := btcClient.GetRawTransactionVerbose(txhash)
+		transactionVerbose, err := btcClient.GetRawTransactionVerboseBool(txhash)
 		if err != nil {
 			return nil, err
 		}
