@@ -55,7 +55,7 @@ func (btcClient *bitcoinClientAlias) getBlockTx(height int32) (*btcjson.GetBlock
 	if err != nil {
 		return nil, err
 	}
-	block, err := btcClient.GetBlockVerbose(blockHash)
+	block, err := btcClient.GetBlockVerboseBool(blockHash)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (btcClient *bitcoinClientAlias) getBlock(height int32) (*btcjson.GetBlockVe
 	}
 
 	//block, err := btcClient.GetBlockVerboseTx(blockHash)
-	block, err := btcClient.GetBlockVerbose(blockHash)
+	block, err := btcClient.GetBlockVerboseBool(blockHash)
 	if err != nil {
 		return nil, err
 	}
