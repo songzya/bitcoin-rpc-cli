@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
-
 	//"fmt"
 	"strconv"
 	"strings"
@@ -24,7 +22,7 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 	if err != nil {
 		sugar.Fatal("Get info error: ", err.Error())
 	}
-	sugar.Warn("info", info)
+	//sugar.Warn("info", info)
 	//btcClient.ReSetSync(info.Headers, esClient)
 	//return true
 
@@ -42,7 +40,7 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 		DBCurrentHeight = *agg
 	}
 	//DBCurrentHeight = 2
-	sugar.Warn("DBCurrentHeight", DBCurrentHeight)
+	//sugar.Warn("DBCurrentHeight", DBCurrentHeight)
 	heightGap := info.Headers - int32(DBCurrentHeight)
 	switch {
 	case heightGap > 0:
@@ -53,13 +51,29 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 			sugar.Fatal("Can't query best block in es")
 		}
 
-		nodeblock, err := btcClient.getBlock1(info.Headers)
+		nodeblock, err := btcClient.getBlock(info.Headers)
 		if err != nil {
 			sugar.Fatal("Can't query block from bitcoind")
 		}
 
 		if esBestBlock.Hash != nodeblock.Hash {
-			esClient.RollbackAndSync(DBCurrentHeight, int(ROLLBACKHEIGHT), btcClient)
+			var rBHeight int32 = ROLLBACKHEIGHT
+			//for true {
+			//	if info.Headers >= rBHeight {
+			//		eBBlock, err := esClient.QueryEsBlockByHeight(context.TODO(), info.Headers-rBHeight)
+			//		if err != nil {
+			//			sugar.Fatal("Can't query best block in es")
+			//		}
+			//		nlock, err := btcClient.getBlock(info.Headers-rBHeight)
+			//		if eBBlock.Hash == nlock.Hash{
+			//			break
+			//		}
+			//		rBHeight += ROLLBACKHEIGHT
+			//	}else{
+			//		rBHeight = info.Headers
+			//	}
+			//}
+			esClient.RollbackAndSync(DBCurrentHeight, int(ROLLBACKHEIGHT+rBHeight), btcClient)
 		}
 	case heightGap < 0:
 		sugar.Fatal("bitcoind best height block less than max block in database , something wrong")
@@ -131,12 +145,12 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		//} else {
 		//	sugar.Info("Get tx info: ", tx)
 		//}
-		sugar.Info("Get height: ", height)
-		block, err := btcClient.getBlock(height)
+		//sugar.Info("Get height: ", height)
+		block, err := btcClient.getBlockTx(height)
 		if err != nil {
 			sugar.Fatal("dumpToES Get block error: ", err.Error())
 		} else {
-			sugar.Info("Get block info: ", block.Hash)
+			//sugar.Info("Get block info: ", block.Hash)
 		}
 		// 这个地址交易数据比较明显，
 		// 结合 https://blockchain.info/address/12cbQLTFMXRnSzktFkuoG3eHoMeFtpTu3S 的交易数据测试验证同步逻辑 (该地址上 2009 年的交易数据)
@@ -249,16 +263,16 @@ func (esClient *elasticClientAlias) syncTxVoutBalance(ctx context.Context, block
 
 	// bulk add balancejournal doc (sync vout: add balance)
 	esClient.BulkInsertBalanceJournal(ctx, voutAddressWithAmountAndTxidSlice, "sync+")
-	fmt.Println("voutAddressWithAmountAndTxidSlice len :", len(voutAddressWithAmountAndTxidSlice))
-	fmt.Println("voutAddressWithAmountAndTxidSlice :", voutAddressWithAmountAndTxidSlice)
+	//fmt.Println("voutAddressWithAmountAndTxidSlice len :", len(voutAddressWithAmountAndTxidSlice))
+	//fmt.Println("voutAddressWithAmountAndTxidSlice :", voutAddressWithAmountAndTxidSlice)
 	// bulk add balancejournal doc (sync vin: sub balance)
 	esClient.BulkInsertBalanceJournal(ctx, vinAddressWithAmountAndTxidSlice, "sync-")
-	fmt.Println("vinAddressWithAmountAndTxidSlice len :", len(vinAddressWithAmountAndTxidSlice))
-	fmt.Println("vinAddressWithAmountAndTxidSlice :", vinAddressWithAmountAndTxidSlice)
+	//fmt.Println("vinAddressWithAmountAndTxidSlice len :", len(vinAddressWithAmountAndTxidSlice))
+	//fmt.Println("vinAddressWithAmountAndTxidSlice :", vinAddressWithAmountAndTxidSlice)
 	// bulk add tx doc
 	esClient.BulkInsertTxes(ctx, esTxs)
-	fmt.Println("esTxs len :", len(esTxs))
-	fmt.Println("esTxs :", esTxs)
+	//fmt.Println("esTxs len :", len(esTxs))
+	//fmt.Println("esTxs :", esTxs)
 }
 
 func (esClient *elasticClientAlias) BulkInsertBalanceJournal(ctx context.Context, balancesWithID []AddressWithAmountAndTxid, ope string) {
