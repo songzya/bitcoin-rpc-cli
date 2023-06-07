@@ -419,7 +419,7 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 	if e := esClient.DeleteEsTxsByBlockHash(ctx, block.Hash); e != nil {
 		sugar.Fatal("rollback block err: ", block.Hash, " fail to delete")
 	} else {
-		sugar.Info("RollbackTxVoutBalanceByBlock block :", block.Height)
+		//sugar.Info("RollbackTxVoutBalanceByBlock block :", block.Height)
 	}
 
 	for _, tx := range block.Tx {
