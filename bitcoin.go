@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 
 	"github.com/shopspring/decimal"
 	"github.com/songzya/bitcoin-rpc-cli/btcjson"
@@ -49,41 +50,41 @@ func (btcClient *bitcoinClientAlias) ReSetSync(hightest int32, elasticClient *el
 }
 
 func (btcClient *bitcoinClientAlias) getBlockTx(height int32) (*btcjson.GetBlockVerboseTxResult, error) {
-	//var block1 btcjson.GetBlockVerboseTxResult
+	var block1 btcjson.GetBlockVerboseTxResult
 	blockHash, err := btcClient.GetBlockHash(int64(height))
 	if err != nil {
 		return nil, err
 	}
-	block, err := btcClient.GetBlockVerboseTx(blockHash)
+	block, err := btcClient.GetBlockVerbose(blockHash)
 	if err != nil {
 		return nil, err
 	}
-	//block1.Hash = block.Hash
-	//block1.Confirmations = block.Confirmations
-	//block1.StrippedSize = block.StrippedSize
-	//block1.Size = block.Size
-	//block1.Weight = block.Weight
-	//block1.Height = block.Height
-	//block1.Version = block.Version
-	//block1.VersionHex = block.VersionHex
-	//block1.MerkleRoot = block.MerkleRoot
-	//block1.Time = block.Time
-	//block1.Nonce = block.Nonce
-	//block1.Bits = block.Bits
-	//block1.Difficulty = block.Difficulty
-	//block1.PreviousHash = block.PreviousHash
-	//block1.NextHash = block.NextHash
-	//for _, tx := range block.Tx {
-	//	txhash, _ := chainhash.NewHashFromStr(tx)
-	//	//sugar.Info("Get txhash: ", txhash)
-	//	transactionVerbose, err := btcClient.GetRawTransactionVerbose(txhash)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	//sugar.Info("Get transactionVerbose: ", transactionVerbose.Hash)
-	//	block1.Tx = append(block1.Tx, *transactionVerbose)
-	//}
-	return block, nil
+	block1.Hash = block.Hash
+	block1.Confirmations = block.Confirmations
+	block1.StrippedSize = block.StrippedSize
+	block1.Size = block.Size
+	block1.Weight = block.Weight
+	block1.Height = block.Height
+	block1.Version = block.Version
+	block1.VersionHex = block.VersionHex
+	block1.MerkleRoot = block.MerkleRoot
+	block1.Time = block.Time
+	block1.Nonce = block.Nonce
+	block1.Bits = block.Bits
+	block1.Difficulty = block.Difficulty
+	block1.PreviousHash = block.PreviousHash
+	block1.NextHash = block.NextHash
+	for _, tx := range block.Tx {
+		txhash, _ := chainhash.NewHashFromStr(tx)
+		//sugar.Info("Get txhash: ", txhash)
+		transactionVerbose, err := btcClient.GetRawTransactionVerbose(txhash)
+		if err != nil {
+			return nil, err
+		}
+		//sugar.Info("Get transactionVerbose: ", transactionVerbose.Hash)
+		block1.Tx = append(block1.Tx, *transactionVerbose)
+	}
+	return &block1, nil
 }
 
 func (btcClient *bitcoinClientAlias) getBlock5(height int32) (*btcjson.GetBlockVerboseTxResult, error) {
