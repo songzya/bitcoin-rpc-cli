@@ -89,21 +89,17 @@ func (esClient *elasticClientAlias) QueryVoutWithVinsOrVoutsUnlimitSize(ctx cont
 	for len(IndexUTXOs) >= 500 {
 		IndexUTXOTmp, IndexUTXOs = IndexUTXOs[:500], IndexUTXOs[500:]
 		voutWithIDsTmp, err := esClient.QueryVoutWithVinsOrVouts(ctx, IndexUTXOTmp)
-		if voutWithIDsTmp != nil {
-			if err != nil {
-				sugar.Fatal("Chunks IndexUTXOs error", err.Error())
-			}
-			voutWithIDs = append(voutWithIDs, voutWithIDsTmp...)
+		if err != nil {
+			sugar.Warn("Chunks IndexUTXOs error", err.Error())
 		}
+		voutWithIDs = append(voutWithIDs, voutWithIDsTmp...)
 	}
 	if len(IndexUTXOs) > 0 {
 		voutWithIDsTmp, err := esClient.QueryVoutWithVinsOrVouts(ctx, IndexUTXOs)
-		if voutWithIDsTmp != nil {
-			if err != nil {
-				sugar.Fatal("Chunks IndexUTXOs error", err.Error())
-			}
-			voutWithIDs = append(voutWithIDs, voutWithIDsTmp...)
+		if err != nil {
+			sugar.Warn("Chunks IndexUTXOs error", err.Error())
 		}
+		voutWithIDs = append(voutWithIDs, voutWithIDsTmp...)
 	}
 	return voutWithIDs
 }
@@ -120,7 +116,7 @@ func (esClient *elasticClientAlias) QueryVoutWithVinsOrVouts(ctx context.Context
 	if err != nil {
 		return nil, errors.New(strings.Join([]string{"query vouts error:", err.Error()}, ""))
 	}
-
+	sugar.Warn("!!searchResult.Hits.Hits!! len :", len(searchResult.Hits.Hits))
 	var voutWithIDs []VoutWithID
 	for _, vout := range searchResult.Hits.Hits {
 		newVout := new(VoutStream)
@@ -159,9 +155,9 @@ func (esClient *elasticClientAlias) QueryVoutsByUsedFieldAndBelongTxID(ctx conte
 	q := elastic.NewBoolQuery()
 	for _, vin := range vins {
 		bq := elastic.NewBoolQuery()
-		bq = bq.Must(elastic.NewTermQuery("txidbelongto", vin.Txid))  // voutStream 所在的交易 ID 属于 vin 的 TxID 字段
-		bq = bq.Must(elastic.NewTermQuery("used.txid", txBelongto))   // vin 所在的交易 ID 属于 voutStream used object 中的 txid 字段
-		bq = bq.Must(elastic.NewTermQuery("used.vinindex", vin.Vout)) // vin 所在的交易输入索引属于 voutStream used object 中的 vinindex 字段
+		bq = bq.Must(elastic.NewTermQuery("txidbelongto.keyword", vin.Txid)) // voutStream 所在的交易 ID 属于 vin 的 TxID 字段
+		bq = bq.Must(elastic.NewTermQuery("used.txid.keyword", txBelongto))  // vin 所在的交易 ID 属于 voutStream used object 中的 txid 字段
+		bq = bq.Must(elastic.NewTermQuery("used.vinindex", vin.Vout))        // vin 所在的交易输入索引属于 voutStream used object 中的 vinindex 字段
 		q.Should(bq)
 	}
 
@@ -172,7 +168,7 @@ func (esClient *elasticClientAlias) QueryVoutsByUsedFieldAndBelongTxID(ctx conte
 	if len(searchResult.Hits.Hits) < 1 {
 		return nil, errors.New("vout not found by the condition")
 	}
-
+	sugar.Warn("@@searchResult.Hits.Hits@@ len :", len(searchResult.Hits.Hits))
 	var voutWithIDs []VoutWithID
 	for _, rawHit := range searchResult.Hits.Hits {
 		newVout := new(VoutStream)
@@ -225,25 +221,70 @@ func (esClient *elasticClientAlias) BulkQueryBalanceUnlimitSize(ctx context.Cont
 }
 
 // BulkQueryBalance query balances by address slice
+func (esClient *elasticClientAlias) BulkQueryBalance1(ctx context.Context, addresses ...interface{}) error {
+	//DLAznsPDLDRgsVcTFWRMYMG5uH6GddDtv8
+	var qAddresses []interface{}
+	var address string = "DLAznsPDLDRgsVcTFWRMYMG5uH6GddDtv8"
+	//var address string = "D"
+	//qAddresses = append(qAddresses, address)
+	//q := elastic.NewTermsQuery("address", qAddresses...)
+	q := elastic.NewTermQuery("address.keyword", address)
+	sugar.Warn("==qAddresses== len :", len(qAddresses), " | address :", q)
+	//searchResult, err := esClient.Search().Index("balance").Type("balance").Size(len(qAddresses)).Query(q).Do(ctx)
+	searchResult, err := esClient.Search().Index("balance").Type("balance").Size(1).Query(q).Do(ctx)
+	//searchResult, err := esClient.Search().Index("balance").Type("balance").Query(elastic.NewMatchQuery("address", address)).Do(ctx)
+	if err != nil {
+		return errors.New(strings.Join([]string{"Get balances error:", err.Error()}, " "))
+	}
+	sugar.Warn("==searchResult.Hits.Hits== len :", len(searchResult.Hits.Hits))
+	for _, balance := range searchResult.Hits.Hits {
+		b := new(Balance)
+		if err := json.Unmarshal(balance.Source, b); err != nil {
+			return errors.New(strings.Join([]string{"unmarshal error:", err.Error()}, " "))
+		}
+		fmt.Println("address :", b.Address, " | amount :", b.Amount)
+
+	}
+
+	searchResult, err = esClient.Search().Index("balance").Type("balance").Do(ctx)
+	if err != nil {
+		return errors.New(strings.Join([]string{"Get balances error:", err.Error()}, " "))
+	}
+	sugar.Warn("=!searchResult.Hits.Hits=! len :", len(searchResult.Hits.Hits))
+	for _, balance := range searchResult.Hits.Hits {
+		b := new(Balance)
+		if err := json.Unmarshal(balance.Source, b); err != nil {
+			return errors.New(strings.Join([]string{"unmarshal error:", err.Error()}, " "))
+		}
+		fmt.Println("address :", b.Address, " | amount :", b.Amount)
+
+	}
+
+	return nil
+}
+
+// BulkQueryBalance query balances by address slice
 func (esClient *elasticClientAlias) BulkQueryBalance(ctx context.Context, addresses ...interface{}) ([]*BalanceWithID, error) {
 	var (
 		balancesWithIDs []*BalanceWithID
 		qAddresses      []interface{}
 	)
-
+	if len(addresses) == 0 {
+		return balancesWithIDs, nil
+	}
 	uniqueAddresses := removeDuplicatesForSlice(addresses...)
 	for _, address := range uniqueAddresses {
 		qAddresses = append(qAddresses, address)
 
 	}
 
-	q := elastic.NewTermsQuery("address", qAddresses...)
-
+	q := elastic.NewTermsQuery("address.keyword", qAddresses...)
+	sugar.Warn("qAddresses len :", len(qAddresses), " | address :", q)
 	searchResult, err := esClient.Search().Index("balance").Type("balance").Size(len(qAddresses)).Query(q).Do(ctx)
 	if err != nil {
 		return nil, errors.New(strings.Join([]string{"Get balances error:", err.Error()}, " "))
 	}
-
+	sugar.Warn("searchResult.Hits.Hits len :", len(searchResult.Hits.Hits))
 	for _, balance := range searchResult.Hits.Hits {
 		b := new(Balance)
 		if err := json.Unmarshal(balance.Source, b); err != nil {

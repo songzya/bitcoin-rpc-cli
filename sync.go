@@ -23,8 +23,8 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 		sugar.Fatal("Get info error: ", err.Error())
 	}
 	//sugar.Warn("info", info)
-	//btcClient.ReSetSync(info.Headers, esClient)
-	//return true
+	btcClient.ReSetSync(info.Headers, esClient)
+	return true
 
 	var DBCurrentHeight float64
 	agg, err := esClient.MaxAgg("height", "block", "block")
@@ -34,15 +34,16 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 			return true
 		}
 		sugar.Warn(strings.Join([]string{"Query max aggration error:", err.Error()}, " "))
-		//return false
-		DBCurrentHeight = 0
-	} else {
-		DBCurrentHeight = *agg
+		return false
+		//	DBCurrentHeight = 0
+		//} else {
+		//	DBCurrentHeight = *agg
 	}
+	DBCurrentHeight = *agg
 	//DBCurrentHeight = 2
-	if DBCurrentHeight < 4733751 {
-		DBCurrentHeight = 4733751
-	}
+	//	if DBCurrentHeight < 4733751 {
+	//		DBCurrentHeight = 4733751
+	//	}
 	//sugar.Warn("DBCurrentHeight", DBCurrentHeight)
 	heightGap := info.Headers - int32(DBCurrentHeight)
 	switch {
@@ -87,44 +88,44 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 func (esClient *elasticClientAlias) RollbackAndSync(from float64, size int, btcClient bitcoinClientAlias) {
 	rollbackIndex := int(from) - size
 	beginSynsIndex := int32(rollbackIndex)
-	if rollbackIndex <= 1 {
+	if rollbackIndex <= 0 {
 		beginSynsIndex = 1
 	}
-	if beginSynsIndex < 4733751 {
-		beginSynsIndex = 4733751
-	}
+	//if beginSynsIndex < 4733751 {
+	//	beginSynsIndex = 4733751
+	//}
 	SyncBeginRecordIndex := strconv.FormatInt(int64(beginSynsIndex), 10)
-	if beginSynsIndex != 4733751 {
-		SyncBeginRecord, err := esClient.Get().Index("block").Type("block").Id(SyncBeginRecordIndex).Do(context.Background())
-		if err != nil {
-			sugar.Fatal("Query SyncBeginRecord error")
-		}
+	//if beginSynsIndex != 4733751 {
+	SyncBeginRecord, err := esClient.Get().Index("block").Type("block").Id(SyncBeginRecordIndex).Do(context.Background())
+	if err != nil {
+		sugar.Fatal("Query SyncBeginRecord error")
+	}
 
-		info, err := btcClient.GetBlockChainInfo()
-		if err != nil {
-			sugar.Fatal("Get info error: ", err.Error())
-		}
-		//sugar.Info("SyncBeginRecord : ", SyncBeginRecord)
-		if !SyncBeginRecord.Found {
-			sugar.Fatal("can't get begin block, need to be resync")
-		} else {
-			// 数据库倒退 5 个块再同步
-			btcClient.dumpToES(beginSynsIndex, info.Headers, size, esClient)
-		}
+	info, err := btcClient.GetBlockChainInfo()
+	if err != nil {
+		sugar.Fatal("Get info error: ", err.Error())
+	}
+	//sugar.Info("SyncBeginRecord : ", SyncBeginRecord)
+	if !SyncBeginRecord.Found {
+		sugar.Fatal("can't get begin block, need to be resync")
 	} else {
-		info, err := btcClient.GetBlockChainInfo()
-		if err != nil {
-			sugar.Fatal("Get info error: ", err.Error())
-		}
+		// 数据库倒退 5 个块再同步
+		//			btcClient.dumpToES(beginSynsIndex, info.Headers, size, esClient)
+		//		}
+		//	} else {
+		//		info, err := btcClient.GetBlockChainInfo()
+		//		if err != nil {
+		//			sugar.Fatal("Get info error: ", err.Error())
+		//		}
 		btcClient.dumpToES(beginSynsIndex, info.Headers, size, esClient)
 	}
 }
 
 func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elasticClient *elasticClientAlias) {
 	//end = from + 10
-	if from < 4733751 {
-		from = 4733751
-	}
+	//	if from < 4733751 {
+	//		from = 4733751
+	//	}
 	sugar.Info("Get from: ", from, ",  end : ", end, ", size :", size)
 	dumpBlockTime1 := time.Now()
 	for height := from; height < end; height++ {
@@ -164,6 +165,8 @@ func (btcClient *bitcoinClientAlias) dumpToES(from, end int32, size int, elastic
 		// 结合 https://blockchain.info/address/12cbQLTFMXRnSzktFkuoG3eHoMeFtpTu3S 的交易数据测试验证同步逻辑 (该地址上 2009 年的交易数据)
 		elasticClient.RollBackAndSyncTx(from, height, size, block)
 		elasticClient.RollBackAndSyncBlock(from, height, size, block)
+		//ctx := context.Background()
+		//elasticClient.BulkQueryBalance1(ctx,nil)
 		sugar.Info("Dump block ", block.Height, " ", block.Hash, " dumpBlockTimeElapsed ", time.Since(dumpBlockTime))
 
 	}
@@ -233,9 +236,9 @@ func (esClient *elasticClientAlias) syncTxVoutBalance(ctx context.Context, block
 
 		// get es vouts with id in elasticsearch by tx vins
 		indexVins := indexedVinsFun(tx.Vin)
+		sugar.Warn("indexVins len :", len(indexVins))
 		voutWithIDs := esClient.QueryVoutWithVinsOrVoutsUnlimitSize(ctx, indexVins)
-		//fmt.Println("vouWithIDs len :", len(voutWithIDs))
-		//fmt.Println("vouWithIDs :", voutWithIDs)
+		sugar.Warn("vouWithIDs len :", len(voutWithIDs))
 
 		for _, voutWithID := range voutWithIDs {
 			// vin amount
@@ -281,6 +284,7 @@ func (esClient *elasticClientAlias) syncTxVoutBalance(ctx context.Context, block
 	esClient.BulkInsertTxes(ctx, esTxs)
 	//fmt.Println("esTxs len :", len(esTxs))
 	//fmt.Println("esTxs :", esTxs)
+
 }
 
 func (esClient *elasticClientAlias) BulkInsertBalanceJournal(ctx context.Context, balancesWithID []AddressWithAmountAndTxid, ope string) {
@@ -342,6 +346,7 @@ func (esClient *elasticClientAlias) syncVoutsBalance(ctx context.Context, voutAd
 				Address: voutAddressWithSumDeposit.Address,
 				Amount:  amount,
 			}
+			sugar.Warn("newbalance address:", voutAddressWithSumDeposit.Address, "  amount:", amount)
 			//  bulk insert balance
 			insertBalance := elastic.NewBulkIndexRequest().Index("balance").Type("balance").Doc(newBalance)
 			bulkRequest.Add(insertBalance).Refresh("true")
@@ -361,8 +366,9 @@ func (esClient *elasticClientAlias) syncVinsBalance(ctx context.Context, vinAddr
 	// 判断去重后的区块中所有交易的 vin 涉及到的地址数量是否与从 es 数据库中查询得到的 vinBalancesWithIDs 数量是否一致
 	// 不一致则说明 balance type 中存在某个地址重复数据，此时应重新同步数据 TODO
 	UniqueVinAddresses := removeDuplicatesForSlice(vinAddresses...)
+	sugar.Warn("UniqueVinAddresses len:", len(UniqueVinAddresses), "  vinBalancesWithIDs len:", len(vinBalancesWithIDs))
 	if len(UniqueVinAddresses) != len(vinBalancesWithIDs) {
-		sugar.Warn("There are duplicate records in balances type")
+		sugar.Fatal("There are duplicate records in balances type")
 	}
 
 	bulkUpdateVinBalanceRequest := esClient.Bulk()
@@ -397,6 +403,7 @@ func (esClient *elasticClientAlias) syncVout(vout btcjson.Vout, tx btcjson.TxRaw
 	if err != nil {
 		return false
 	}
+	sugar.Warn("newVout address", newVout.Addresses, "  coinbase:", newVout.Coinbase, "  value:", newVout.Value, " \nvin0  txid:", tx.Vin[0].Txid, " vin0 vout:", tx.Vin[0].Vout, " vin0 coinbase :", tx.Vin[0].Coinbase)
 	createdVout := elastic.NewBulkIndexRequest().Index("vout").Type("vout").Doc(newVout)
 	bulkRequest.Add(createdVout).Refresh("true")
 	return true
@@ -426,13 +433,10 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 	// rollback: delete txs in es by block hash
 	if e := esClient.DeleteEsTxsByBlockHash(ctx, block.Hash); e != nil {
 		sugar.Warn("rollback block err: ", block.Hash, " fail to delete")
-	} else {
-		//sugar.Info("RollbackTxVoutBalanceByBlock block :", block.Height)
 	}
 
 	for _, tx := range block.Tx {
 		// es 中 vout 的 used 字段为 nil 涉及到的 vins 地址余额不用回滚
-
 		voutWithIDSliceForVins, _ := esClient.QueryVoutsByUsedFieldAndBelongTxID(ctx, tx.Vin, tx.Txid)
 
 		// 如果 len(voutWithIDSliceForVins) 为 0 ，则表面已经回滚过了，
@@ -466,10 +470,11 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 	}
 
 	// 统计块中所有交易 vin 涉及到的地址及其对应的提现余额 (balance type)
+	sugar.Warn("vinAddresses len:", len(vinAddresses))
 	UniqueVinAddressesWithSumWithdraw = calculateUniqueAddressWithSumForVinOrVout(vinAddresses, vinAddressWithAmountSlice)
 	bulkQueryVinBalance, err := esClient.BulkQueryBalance(ctx, vinAddresses...)
 	if err != nil {
-		sugar.Warn("Rollback: query vin balance error: ", err.Error())
+		sugar.Fatal("Rollback: query vin balance error: ", err.Error())
 	}
 	vinBalancesWithIDs = bulkQueryVinBalance
 
@@ -477,7 +482,7 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 	UniqueVoutAddressesWithSumDeposit = calculateUniqueAddressWithSumForVinOrVout(voutAddresses, voutAddressWithAmountSlice)
 	bulkQueryVoutBalance, err := esClient.BulkQueryBalance(ctx, voutAddresses...)
 	if err != nil {
-		sugar.Warn("Rollback: query vout balance error: ", err.Error())
+		sugar.Fatal("Rollback: query vout balance error: ", err.Error())
 	}
 	voutBalancesWithIDs = bulkQueryVoutBalance
 
