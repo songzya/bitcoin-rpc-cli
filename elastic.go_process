@@ -116,7 +116,7 @@ func (esClient *elasticClientAlias) QueryVoutWithVinsOrVouts(ctx context.Context
 	if err != nil {
 		return nil, errors.New(strings.Join([]string{"query vouts error:", err.Error()}, ""))
 	}
-	//sugar.Warn("!!searchResult.Hits.Hits!! len :", len(searchResult.Hits.Hits))
+	sugar.Warn("!!searchResult.Hits.Hits!! len :", len(searchResult.Hits.Hits))
 	var voutWithIDs []VoutWithID
 	for _, vout := range searchResult.Hits.Hits {
 		newVout := new(VoutStream)
@@ -168,7 +168,7 @@ func (esClient *elasticClientAlias) QueryVoutsByUsedFieldAndBelongTxID(ctx conte
 	if len(searchResult.Hits.Hits) < 1 {
 		return nil, errors.New("vout not found by the condition")
 	}
-	//sugar.Warn("@@searchResult.Hits.Hits@@ len :", len(searchResult.Hits.Hits))
+	sugar.Warn("@@searchResult.Hits.Hits@@ len :", len(searchResult.Hits.Hits))
 	var voutWithIDs []VoutWithID
 	for _, rawHit := range searchResult.Hits.Hits {
 		newVout := new(VoutStream)
@@ -279,19 +279,19 @@ func (esClient *elasticClientAlias) BulkQueryBalance(ctx context.Context, addres
 	}
 
 	q := elastic.NewTermsQuery("address.keyword", qAddresses...)
-	//sugar.Warn("qAddresses len :", len(qAddresses), " | address :", q)
+	sugar.Warn("qAddresses len :", len(qAddresses), " | address :", q)
 	searchResult, err := esClient.Search().Index("balance").Type("balance").Size(len(qAddresses)).Query(q).Do(ctx)
 	if err != nil {
 		return nil, errors.New(strings.Join([]string{"Get balances error:", err.Error()}, " "))
 	}
-	//sugar.Warn("searchResult.Hits.Hits len :", len(searchResult.Hits.Hits))
+	sugar.Warn("searchResult.Hits.Hits len :", len(searchResult.Hits.Hits))
 	for _, balance := range searchResult.Hits.Hits {
 		b := new(Balance)
 		if err := json.Unmarshal(balance.Source, b); err != nil {
 			return nil, errors.New(strings.Join([]string{"unmarshal error:", err.Error()}, " "))
 		}
-		//	fmt.Println("address :", b.Address)
-		//	fmt.Println("amount :", b.Amount)
+		fmt.Println("address :", b.Address)
+		fmt.Println("amount :", b.Amount)
 		balancesWithIDs = append(balancesWithIDs, &BalanceWithID{balance.Id, *b})
 	}
 	return balancesWithIDs, nil

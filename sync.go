@@ -23,8 +23,8 @@ func (esClient *elasticClientAlias) Sync(btcClient bitcoinClientAlias) bool {
 		sugar.Fatal("Get info error: ", err.Error())
 	}
 	//sugar.Warn("info", info)
-	btcClient.ReSetSync(info.Headers, esClient)
-	return true
+	//btcClient.ReSetSync(info.Headers, esClient)
+	//return true
 
 	var DBCurrentHeight float64
 	agg, err := esClient.MaxAgg("height", "block", "block")
@@ -236,9 +236,9 @@ func (esClient *elasticClientAlias) syncTxVoutBalance(ctx context.Context, block
 
 		// get es vouts with id in elasticsearch by tx vins
 		indexVins := indexedVinsFun(tx.Vin)
-		sugar.Warn("indexVins len :", len(indexVins))
+		//sugar.Warn("indexVins len :", len(indexVins))
 		voutWithIDs := esClient.QueryVoutWithVinsOrVoutsUnlimitSize(ctx, indexVins)
-		sugar.Warn("vouWithIDs len :", len(voutWithIDs))
+		//sugar.Warn("vouWithIDs len :", len(voutWithIDs))
 
 		for _, voutWithID := range voutWithIDs {
 			// vin amount
@@ -346,7 +346,7 @@ func (esClient *elasticClientAlias) syncVoutsBalance(ctx context.Context, voutAd
 				Address: voutAddressWithSumDeposit.Address,
 				Amount:  amount,
 			}
-			sugar.Warn("newbalance address:", voutAddressWithSumDeposit.Address, "  amount:", amount)
+			//	sugar.Warn("newbalance address:", voutAddressWithSumDeposit.Address, "  amount:", amount)
 			//  bulk insert balance
 			insertBalance := elastic.NewBulkIndexRequest().Index("balance").Type("balance").Doc(newBalance)
 			bulkRequest.Add(insertBalance).Refresh("true")
@@ -366,7 +366,7 @@ func (esClient *elasticClientAlias) syncVinsBalance(ctx context.Context, vinAddr
 	// 判断去重后的区块中所有交易的 vin 涉及到的地址数量是否与从 es 数据库中查询得到的 vinBalancesWithIDs 数量是否一致
 	// 不一致则说明 balance type 中存在某个地址重复数据，此时应重新同步数据 TODO
 	UniqueVinAddresses := removeDuplicatesForSlice(vinAddresses...)
-	sugar.Warn("UniqueVinAddresses len:", len(UniqueVinAddresses), "  vinBalancesWithIDs len:", len(vinBalancesWithIDs))
+	//	sugar.Warn("UniqueVinAddresses len:", len(UniqueVinAddresses), "  vinBalancesWithIDs len:", len(vinBalancesWithIDs))
 	if len(UniqueVinAddresses) != len(vinBalancesWithIDs) {
 		sugar.Fatal("There are duplicate records in balances type")
 	}
@@ -403,7 +403,7 @@ func (esClient *elasticClientAlias) syncVout(vout btcjson.Vout, tx btcjson.TxRaw
 	if err != nil {
 		return false
 	}
-	sugar.Warn("newVout address", newVout.Addresses, "  coinbase:", newVout.Coinbase, "  value:", newVout.Value, " \nvin0  txid:", tx.Vin[0].Txid, " vin0 vout:", tx.Vin[0].Vout, " vin0 coinbase :", tx.Vin[0].Coinbase)
+	//	sugar.Warn("newVout address", newVout.Addresses, "  coinbase:", newVout.Coinbase, "  value:", newVout.Value, " \nvin0  txid:", tx.Vin[0].Txid, " vin0 vout:", tx.Vin[0].Vout, " vin0 coinbase :", tx.Vin[0].Coinbase)
 	createdVout := elastic.NewBulkIndexRequest().Index("vout").Type("vout").Doc(newVout)
 	bulkRequest.Add(createdVout).Refresh("true")
 	return true
@@ -470,7 +470,7 @@ func (esClient *elasticClientAlias) RollbackTxVoutBalanceByBlock(ctx context.Con
 	}
 
 	// 统计块中所有交易 vin 涉及到的地址及其对应的提现余额 (balance type)
-	sugar.Warn("vinAddresses len:", len(vinAddresses))
+	//	sugar.Warn("vinAddresses len:", len(vinAddresses))
 	UniqueVinAddressesWithSumWithdraw = calculateUniqueAddressWithSumForVinOrVout(vinAddresses, vinAddressWithAmountSlice)
 	bulkQueryVinBalance, err := esClient.BulkQueryBalance(ctx, vinAddresses...)
 	if err != nil {

@@ -19,8 +19,8 @@ type bitcoinClientAlias struct {
 func (conf *configure) bitcoinClient() *rpcclient.Client {
 	connCfg := &rpcclient.ConnConfig{
 		Host: strings.Join([]string{conf.BitcoinHost, conf.BitcoinPort}, ":"),
-		User: "admin",       //conf.BitcoinUser,
-		Pass: "1qa2ws3ed!@", //conf.BitcoinPass,
+		User: "admin",      //conf.BitcoinUser,
+		Pass: "Luotao1981", //conf.BitcoinPass,
 		//CookiePath:   "/root/.dogecoin/.cookie",
 		HTTPPostMode: conf.BitcoinhttpMode,
 		DisableTLS:   conf.BitcoinDisableTLS,
@@ -46,6 +46,13 @@ func (btcClient *bitcoinClientAlias) ReSetSync(hightest int32, elasticClient *el
 	}
 
 	elasticClient.createIndices()
+	block, err := btcClient.getBlockTx(1)
+	if err != nil {
+		sugar.Fatal("dumpToES Get block error: ", err.Error())
+	} else {
+		//sugar.Info("Get block info: ", block.Hash)
+	}
+	elasticClient.RollBackAndSyncTx(int32(0), int32(1), int(-1), block)
 	btcClient.dumpToES(int32(1), hightest, int(ROLLBACKHEIGHT), elasticClient)
 }
 
